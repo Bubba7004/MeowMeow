@@ -3027,7 +3027,7 @@ function generateAllSections() {
           )
             .then((response) => response.text())
             .then((text) => {
-              const newWin = window.open("about:blank", "_blank");
+              const newWin = window.open("example.com");
               if (newWin) {
                 newWin.document.open();
                 newWin.document.write(text);
