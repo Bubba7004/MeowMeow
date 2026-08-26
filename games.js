@@ -2956,6 +2956,7 @@ let files = [
 "clsausageflip",
 "clswitch",
 "clwariowaretouched"
+
 ];
 function generateAllSections() {
   try {
@@ -2999,84 +3000,88 @@ function generateAllSections() {
     "Y",
     "Z",
   ];
+const filesByChar = {};
+allChars.forEach((char) => {
+  filesByChar[char] = [];
+});
 
-   const filesByChar = {};
-  allChars.forEach((char) => {
-    filesByChar[char] = [];
-  });
-
-  files.forEach((file) => {
-    const lower = file.toLowerCase();
-    if (lower.startsWith("cl")) {
-      const aftercl = lower.substring(2);
-      if (aftercl.length > 0) {
-        const firstChar = aftercl[0].toUpperCase();
-        if (filesByChar[firstChar]) {
-          filesByChar[firstChar].push(file);
-        }
+files.forEach((file) => {
+  const lower = file.toLowerCase();
+  if (lower.startsWith("cl")) {
+    const aftercl = lower.substring(2);
+    if (aftercl.length > 0) {
+      const firstChar = aftercl[0].toUpperCase();
+      if (filesByChar[firstChar]) {
+        filesByChar[firstChar].push(file);
       }
     }
-  });
+  }
+});
 
-  const container = document.getElementById("sections-container");
-  allChars.forEach((char) => {
-    const section = document.createElement("div");
-    section.className = "letter-section";
-    section.id = `section-${char}`;
+const container = document.getElementById("sections-container");
+allChars.forEach((char) => {
+  const section = document.createElement("div");
+  section.className = "letter-section";
+  section.id = `section-${char}`;
 
-    const header = document.createElement("div");
-    header.className = "letter-header";
-    header.textContent = char;
-    section.appendChild(header);
+  const header = document.createElement("div");
+  header.className = "letter-header";
+  header.textContent = char;
+  section.appendChild(header);
 
-    const buttonsContainer = document.createElement("div");
-    buttonsContainer.className = "buttons-container";
+  const buttonsContainer = document.createElement("div");
+  buttonsContainer.className = "buttons-container";
 
-    if (filesByChar[char].length > 0) {
-      filesByChar[char].forEach((file) => {
-        const btn = document.createElement("input");
-        btn.type = "button";
-        btn.value = file;
-        btn.onclick = () => {
-          function normalizeFileName(name) {
-            if (name.includes(".") && name.lastIndexOf(".") > 0) return name;
-            return name + ".html";
-          }
+  if (filesByChar[char].length > 0) {
+    filesByChar[char].forEach((file) => {
+      const btn = document.createElement("input");
+      btn.type = "button";
+      btn.value = file;
+      btn.onclick = () => {
+        function normalizeFileName(name) {
+          if (name.includes(".") && name.lastIndexOf(".") > 0) return name;
+          return name + ".html";
+        }
 
-          const normalized = normalizeFileName(file);
-          const encoded = encodeURIComponent(normalized);
+        const normalized = normalizeFileName(file);
+        const encoded = encodeURIComponent(normalized);
 
-          fetch(
-            `https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/${encoded}?t=${Date.now()}`,
-          )
-            .then((response) => response.text())
-            .then((text) => {
-              const newWin = window.open("https://example.com");
-              if (newWin) {
-                newWin.document.open();
-                newWin.document.write(text);
-                newWin.document.close();
-              }
-            });
-        };
-        btn.style.width = "100%";
-        btn.style.height = "100%";
-        buttonsContainer.appendChild(btn);
-      });
-    } else {
-      section.classList.add("empty");
-      const emptyMsg = document.createElement("div");
-      emptyMsg.className = "empty-message";
-      emptyMsg.textContent = "No files";
-      buttonsContainer.appendChild(emptyMsg);
-    }
+        // Open window synchronously to avoid popup blockers
+        const newWin = window.open("", "_blank");
 
-    section.appendChild(buttonsContainer);
-    container.appendChild(section);
-  });
+        fetch(
+          `https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/${encoded}?t=${Date.now()}`
+        )
+          .then((response) => response.text())
+          .then((text) => {
+            if (newWin) {
+              newWin.document.open();
+              newWin.document.write(text);
+              newWin.document.close();
+            }
+          })
+          .catch((err) => {
+            console.error("Fetch error:", err);
+            if (newWin) newWin.close();
+          });
+      };
+      btn.style.width = "100%";
+      btn.style.height = "100%";
+      buttonsContainer.appendChild(btn);
+    });
+  } else {
+    section.classList.add("empty");
+    const emptyMsg = document.createElement("div");
+    emptyMsg.className = "empty-message";
+    emptyMsg.textContent = "No files";
+    buttonsContainer.appendChild(emptyMsg);
+  }
 
-  generateSidebar(allChars, filesByChar);
-}
+  section.appendChild(buttonsContainer);
+  container.appendChild(section);
+});
+
+generateSidebar(allChars, filesByChar);
 
 function generateSidebar(allChars, filesByChar) {
   const sidebar = document.getElementById("sidebar");
@@ -3103,4 +3108,5 @@ function generateSidebar(allChars, filesByChar) {
     sidebar.appendChild(btn);
   });
 }
+
 generateAllSections();
