@@ -3051,7 +3051,7 @@ function generateAllSections() {
           )
             .then((response) => response.text())
             .then((text) => {
-              const newWin = window.open("example.com");
+              const newWin = window.open("https://example.com");
               if (newWin) {
                 newWin.document.open();
                 newWin.document.write(text);
