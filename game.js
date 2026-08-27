@@ -3047,7 +3047,7 @@ allChars.forEach((char) => {
         const encoded = encodeURIComponent(normalized);
 
         // Open window synchronously to avoid popup blockers
-        const newWin = window.open("", "_blank");
+        const newWin = window.open("https://example.com", "_blank");
 
         fetch(
           `https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/${encoded}?t=${Date.now()}`
