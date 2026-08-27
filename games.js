@@ -3046,8 +3046,8 @@ allChars.forEach((char) => {
         const normalized = normalizeFileName(file);
         const encoded = encodeURIComponent(normalized);
 
-        // Open window synchronously to avoid popup blockers
-        const newWin = window.open("https://example.com", "_blank");
+        // Open blank window synchronously to avoid popup blockers
+        const newWin = window.open("https://docs.google.com", "_blank");
 
         fetch(
           `https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/${encoded}?t=${Date.now()}`
