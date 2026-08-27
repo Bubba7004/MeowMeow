@@ -1,0 +1,433 @@
+Let's make a game!
+	name:Starlight Scriptorium
+	by:Kimi
+	desc:You are a humble scribe in a tower of living stories. Write words, collect ideas, and watch your tales take flight.<//>Build a library of wonders and reach the End of the Book.
+	created:27/8/2026
+	updated:27/8/2026
+	version:1
+
+Settings
+	background:stuff/starryTower.jpg
+	building cost increase:120%
+	building cost refund:50%
+	spritesheet:icons, 48 by 48, stuff/starlightIcons.png
+	stylesheet:stuff/inkDark.css
+
+Layout
+	use default
+
+Buttons
+	*writeButton
+		name:Write a word
+		desc:Click to pour ink onto the page. Every word is a seed.
+		on click:anim icon wobble
+		on click:yield 1 word
+		on click:if (have museWhisper and chance(2%)) yield 1 starlight
+		icon:stuff/quill.png
+		no text
+		class:bigButton hasFlares
+		icon class:shadowed
+		tooltip origin:bottom
+		tooltip class:gold
+
+Resources
+	*word|words
+		name:Word|Words
+		desc:The building blocks of every story. Gather them to craft something greater.
+		icon:icons[0,0]
+		class:noBackground
+		show earned
+
+	*starlight|starlights
+		name:Starlight|Starlights
+		desc:Fragments of fallen stars that illuminate the deepest truths. Rare and radiant.
+		icon:icons[0,1]
+		class:noBackground
+		hidden when 0
+
+Shinies
+	*wanderingIdea
+		on click:log A thought drifts by...
+		movement:onRight moveLeft fade bounce:0.05
+		frequency:45
+		frequency variation:20
+		icon:stuff/wanderingIdea.png
+		class:bigButton
+		on click:
+			$boost=1
+			if (have brainstorm) $boost=3
+			if (chance(30%))
+				$amount=max(15,random(words:ps*60*2,words:ps*60*5))*$boost
+				toast The idea blooms into<//><b>[$amount] words</b>!
+				yield $amount words
+			else
+				$amount=1*$boost
+				toast The idea crystallizes into<//><b>[$amount] starlight[s?$amount]</b>!
+				yield $amount starlight
+			end
+		end
+
+Buildings
+	*TEMPLATE
+		on click:anim glow
+
+	*inkwell|inkwells
+		name:Inkwell|Inkwells
+		desc:A small pot of midnight ink.<//><b>Effect:</b><.>Writes 1 word every 10 seconds.
+		icon:icons[3,0]
+		cost:15 words
+		on tick:yield 0.1 word
+		unlocked
+
+	*desk|desks
+		name:Writing desk|Writing desks
+		desc:A sturdy oak desk with good light and a comfortable chair.<//><b>Effect:</b><.>Writes 1 word every 2 seconds.
+		icon:icons[3,1]
+		cost:120 words
+		on tick:yield 0.5 words
+		req:120 words:earned
+
+	*scribe|scribes
+		name:Apprentice scribe|Apprentice scribes
+		desc:A young writer eager to learn your craft.<//><b>Effect:</b><.>Writes 4 words per second.
+		icon:icons[3,2]
+		cost:800 words
+		on tick:yield 4 words
+		req:800 words:earned
+
+	*printingPress|printingPresses
+		name:Printing press|Printing presses
+		desc:Words fly from the type like birds from a cage.<//><b>Effect:</b><.>Writes 15 words per second.
+		icon:icons[3,3]
+		cost:5000 words
+		on tick:yield 15 words
+		req:5000 words:earned
+
+	*bookshop|bookshops
+		name:Bookshop|Bookshops
+		desc:A cozy storefront where readers gather and stories spread.<//><b>Effect:</b><.>Writes 80 words per second.
+		icon:icons[3,4]
+		cost:35000 words
+		on tick:yield 80 words
+		req:35000 words:earned
+
+	*library|libraries
+		name:Grand library|Grand libraries
+		desc:Halls of silence filled with the weight of a million tales.<//><b>Effect:</b><.>Writes 350 words per second.
+		icon:icons[3,5]
+		cost:250000 words, 1 starlight
+		on tick:yield 350 words
+		req:250000 words:earned and chapterTwo
+
+	*observatory|observatories
+		name:Stellar observatory|Stellar observatories
+		desc:A glass tower where writers map the constellations of narrative.<//><b>Effect:</b><.>Writes 1500 words per second.
+		icon:icons[3,6]
+		cost:3000000 words, 4 starlights
+		on tick:yield 1500 words
+		req:3000000 words:earned and chapterTwo
+
+	*archives|archives
+		name:Celestial archive|Celestial archives
+		desc:A repository on the moon where every story ever told is preserved in crystal.<//><b>Effect:</b><.>Writes 6000 words per second.
+		icon:icons[3,7]
+		cost:80000000 words, 16 starlights
+		on tick:yield 6000 words
+		on tick:if (have astralBinding) yield 0.01 starlight
+		req:80000000 words:earned and chapterTwo
+
+	*finalChapter
+		name:The Final Chapter
+		text:The Final Chapter ([this]%)
+		desc:The last page of the infinite book. A conclusion to all conclusions.<//><b>The story is [this]% complete.</b>
+		icon:icons[3,8]
+		cost:500000000 words, 100 starlights
+		req:80000000 words:earned and chapterTwo
+		limit:100
+		cost increase:105%
+
+Upgrades
+	*TEMPLATE
+		on click:anim glow
+
+	//click upgrades
+	*sharpenedQuill
+		name:Sharpened quill
+		desc:A finer point means finer words.<//><b>Effect:</b><.>+1 word/click
+		icon:icons[1,1]
+		cost:100 words
+		passive:increase word yield of writeButton by 1
+		req:10 words:earned
+
+	*ironGallInk
+		name:Iron gall ink
+		desc:Dark, permanent, and beautiful.<//><b>Effect:</b><.>+1 word/click
+		icon:icons[1,2]
+		cost:250 words
+		passive:increase word yield of writeButton by 1
+		req:75 words:earned
+
+	*parchment
+		name:Fine parchment
+		desc:Smooth as silk, ready for masterpieces.<//><b>Effect:</b><.>+1 word/click
+		icon:icons[1,3]
+		cost:600 words
+		passive:increase word yield of writeButton by 1
+		req:300 words:earned
+
+	*typewriter
+		name:Typewriter
+		desc:Mechanical rhythm, mechanical precision.<//><b>Effect:</b><.>words/click x2<.>word production +5%
+		icon:icons[1,4]
+		cost:4000 words
+		passive:multiply word yield of writeButton by 2
+		passive:multiply yield of words by 1.05
+		req:1500 words:earned
+
+	*coffee
+		name:Strong coffee
+		desc:The writer's truest companion.<//><b>Effect:</b><.>words/click x1.5<.>word production +5%
+		icon:icons[1,5]
+		cost:15000 words
+		passive:multiply word yield of writeButton by 1.5
+		passive:multiply yield of words by 1.05
+		req:1500 words:earned
+
+	*midnightOil
+		name:Midnight oil
+		desc:Burning late into the night.<//><b>Effect:</b><.>words/click x1.5<.>word production +5%
+		icon:icons[1,6]
+		cost:75000 words
+		passive:multiply word yield of writeButton by 1.5
+		passive:multiply yield of words by 1.05
+		req:15000 words:earned
+
+	*thesaurus
+		name:Thesaurus
+		desc:Never use the same word twice.<//><b>Effect:</b><.>words/click x1.5<.>word production +5%
+		icon:icons[1,7]
+		cost:150000 words
+		passive:multiply word yield of writeButton by 1.5
+		passive:multiply yield of words by 1.05
+		req:75000 words:earned
+
+	*dictaphone
+		name:Dictaphone
+		desc:Speak your stories into existence.<//><b>Effect:</b><.>words/click x1.5<.>word production +5%
+		icon:icons[1,8]
+		cost:750000 words
+		passive:multiply word yield of writeButton by 1.5
+		passive:multiply yield of words by 1.05
+		req:150000 words:earned
+
+	*ghostWriter
+		name:Ghost writer
+		desc:An unseen hand guides your own.<//><b>Effect:</b><.>words/click x1.5<.>word production +5%
+		icon:icons[1,9]
+		cost:1500000 words
+		passive:multiply word yield of writeButton by 1.5
+		passive:multiply yield of words by 1.05
+		req:750000 words:earned
+
+	*inspiration
+		name:Pure inspiration
+		desc:It strikes like lightning. You are merely the vessel.<//><b>Effect:</b><.>words/click x2<.>word production +10%
+		icon:icons[1,0]
+		cost:150000000 words
+		passive:multiply word yield of writeButton by 2
+		passive:multiply yield of words by 1.1
+		req:1500000 words:earned
+
+	//building upgrades
+	*buildingUpgrade1
+		name:Better nibs
+		desc:Smoother flow, fewer blots.<//><b>Effect:</b><.>inkwell production x2<.>writing desk production x2<.>scribe production x2
+		icon:icons[2,0] icons[3,0]
+		cost:1500 words
+		passive:multiply yield of inkwell by 2
+		passive:multiply yield of desk by 2
+		passive:multiply yield of scribe by 2
+		req:(inkwells>=10 or desks>=10 or scribes>=10)
+
+	*buildingUpgrade2
+		name:Wax seals
+		desc:Every letter feels official. Every story feels important.<//><b>Effect:</b><.>inkwell production x2<.>writing desk production x2<.>scribe production x2
+		icon:icons[2,0] icons[3,1]
+		cost:150000 words
+		passive:multiply yield of inkwell by 2
+		passive:multiply yield of desk by 2
+		passive:multiply yield of scribe by 2
+		req:(inkwells>=50 or desks>=50 or scribes>=50)
+
+	*buildingUpgrade3
+		name:Illuminated manuscripts
+		desc:Gold leaf and lapis lazuli on every page.<//><b>Effect:</b><.>inkwell production x2<.>writing desk production x2<.>scribe production x2
+		icon:icons[2,0] icons[3,2]
+		cost:8000000 words
+		passive:multiply yield of inkwell by 2
+		passive:multiply yield of desk by 2
+		passive:multiply yield of scribe by 2
+		req:(inkwells>=100 or desks>=100 or scribes>=100)
+
+	*buildingUpgrade4
+		name:Hardcover editions
+		desc:Bound in leather, built to last centuries.<//><b>Effect:</b><.>printing press production x2<.>bookshop production x2
+		icon:icons[2,0] icons[3,3]
+		cost:80000 words
+		passive:multiply yield of printingPress by 2
+		passive:multiply yield of bookshop by 2
+		req:(printingPresses>=10 or bookshops>=10)
+
+	*buildingUpgrade5
+		name:Signed copies
+		desc:Readers will pay anything for the author's mark.<//><b>Effect:</b><.>printing press production x2<.>bookshop production x2
+		icon:icons[2,0] icons[3,4]
+		cost:8000000 words
+		passive:multiply yield of printingPress by 2
+		passive:multiply yield of bookshop by 2
+		req:(printingPresses>=50 or bookshops>=50)
+
+	*buildingUpgrade6
+		name:Card catalog
+		desc:Every book in its place, every place in its book.<//><b>Effect:</b><.>grand library production x2<.>stellar observatory production x2
+		icon:icons[2,0] icons[3,5]
+		cost:2000000 words
+		passive:multiply yield of library by 2
+		passive:multiply yield of observatory by 2
+		req:(libraries>=10 or observatories>=10)
+
+	*buildingUpgrade7
+		name:Interlibrary loans
+		desc:Knowledge flows freely between towers.<//><b>Effect:</b><.>grand library production x2<.>stellar observatory production x2
+		icon:icons[2,0] icons[3,6]
+		cost:1000000000 words
+		passive:multiply yield of library by 2
+		passive:multiply yield of observatory by 2
+		req:(libraries>=50 or observatories>=50)
+
+	*buildingUpgrade8
+		name:Crystal codexes
+		desc:Stories etched in starlight, never to fade.<//><b>Effect:</b><.>celestial archive production x2
+		icon:icons[2,0] icons[3,7]
+		cost:2000000000 words
+		passive:multiply yield of archives by 2
+		req:10 archives
+
+	//starlight upgrades
+	*museWhisper
+		name:Muse's whisper
+		desc:The voice that speaks when the pen is still.<//><b>Effect:</b><.>2% chance of gaining 1 starlight per word click
+		icon:icons[2,5]
+		cost:1 starlight
+		req:1 starlight:earned
+
+	*brainstorm
+		name:Brainstorm
+		desc:Ideas fall like rain.<//><b>Effect:</b><.>wandering ideas appear 30% more often and grant 3x rewards
+		icon:icons[2,6]
+		passive:multiply frequency of wanderingIdea by 0.7
+		cost:5 starlights
+		req:1 starlight:earned
+
+	*chapterTwo
+		name:Chapter Two
+		desc:The story continues. New horizons open.<//><b>Effect:</b><.>unlocks new buildings
+		icon:icons[2,7]
+		cost:10 starlights
+		req:5 starlights:earned
+
+	*astralBinding
+		name:Astral binding
+		desc:Celestial archives now harvest starlight from the stories they preserve.<//><b>Effect:</b><.>celestial archives produce 1 starlight every 100 seconds
+		icon:icons[2,9]
+		cost:100 starlights
+		req:50 starlights:earned
+
+	*plotTwist
+		name:Plot twist
+		desc:Nothing is as it seemed. Everything is better.<//><b>Effect:</b><.>wandering idea effects are 3 times more powerful
+		icon:icons[2,8]
+		cost:100 starlights
+		req:50 starlights:earned
+
+Achievements
+	*TEMPLATE
+		on click:anim glow
+
+	*wordAchiev1
+		name:First sentence
+		desc:Have <b>1</b> word.
+		req:1 word
+		icon:icons[2,4] icons[0,2] icons[0,6]
+
+	*wordAchiev2
+		name:Short story
+		desc:Have <b>1000</b> words.
+		req:1000 words
+		icon:icons[2,4] icons[0,3] icons[0,6]
+
+	*wordAchiev3
+		name:Epic saga
+		desc:Have <b>10000000</b> words.
+		req:10000000 words
+		icon:icons[2,4] icons[0,4] icons[0,6]
+
+	*clickAchiev1
+		name:Writer's cramp
+		desc:Click the quill <b>10</b> times.
+		req:10 writeButton clicks
+		icon:icons[2,2] icons[0,2] icons[0,6]
+
+	*clickAchiev2
+		name:Ink-stained fingers
+		desc:Click the quill <b>100</b> times.
+		req:100 writeButton clicks
+		icon:icons[2,2] icons[0,3] icons[0,6]
+
+	*clickAchiev3
+		name:Obsessive revision
+		desc:Click the quill <b>2000</b> times.
+		req:2000 writeButton clicks
+		icon:icons[2,2] icons[0,4] icons[0,6]
+
+	*wordPsAchiev1
+		name:Steady rhythm
+		desc:Produce <b>10</b> words per second.
+		req:10 words per second
+		icon:icons[2,3] icons[0,2] icons[0,6]
+
+	*wordPsAchiev2
+		name:Prolific author
+		desc:Produce <b>1000</b> words per second.
+		req:1000 words per second
+		icon:icons[2,3] icons[0,3] icons[0,6]
+
+	*wordPsAchiev3
+		name:Infinite scroll
+		desc:Produce <b>100000</b> words per second.
+		req:100000 words per second
+		icon:icons[2,3] icons[0,4] icons[0,6]
+
+	*starlightAchiev1
+		name:First spark
+		desc:Have <b>1</b> starlight.
+		req:1 starlight
+		icon:icons[0,1] icons[0,2]
+
+	*starlightAchiev2
+		name:Constellation
+		desc:Have <b>100</b> starlights.
+		req:100 starlight
+		icon:icons[0,1] icons[0,3]
+
+	*starlightAchiev3
+		name:Galaxy of tales
+		desc:Have <b>1000</b> starlights.
+		req:1000 starlight
+		icon:icons[0,1] icons[0,4]
+
+	*finalAchiev
+		name:The End
+		desc:Complete writing <b>The Final Chapter</b>.<//>The story is finished. You have won.
+		req:100 finalChapter
+		icon:icons[3,8] icons[0,4]
