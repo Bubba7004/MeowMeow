@@ -1,127 +1,181 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Opening Link...</title>
-    <style>
-        body {
-            font-family: system-ui, -apple-system, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f4f4f9;
-            color: #333;
-        }
-        .container {
-            text-align: center;
-            padding: 2rem;
-            border-radius: 8px;
-            background: #ffffff;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
-        }
-        .warning {
-            display: none;
-            color: #d9534f;
-            margin-top: 1rem;
-            font-weight: bold;
-        }
-        button {
-            margin-top: 1rem;
-            padding: 0.5rem 1rem;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 1rem;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <h2>Redirecting...</h2>
-    <p>Opening target page in an isolated tab.</p>
+// blocker.js - Save to GitHub, serve via jsDelivr
+(function() {
+    'use strict';
     
-    <div id="popup-warning" class="warning">
-        ⚠️ Pop-up blocked! Please allow pop-ups for this site to continue, then click the button below.
-    </div>
+    // Block Plausible/Senty analytics completely
+    const BLOCKED_ORIGINS = ['stats.senty.com.au', 'senty.com.au'];
     
-    <button id="retry-btn" onclick="openInBlank()">Open Manually</button>
-</div>
-
-<script>
-    const targetUrl = "https://alchemy.echolearning.cfd/";
-    const targetIcon = "https://cdn-icons-png.flaticon.com/128/5968/5968523.png";
-    
-    // REPLACE WITH YOUR ACTUAL JSDELIVR URL
-    // Format: https://cdn.jsdelivr.net/gh/USERNAME/REPO@main/blocker.js
-    const BLOCKER_SCRIPT_URL = "https://cdn.jsdelivr.net/gh/YOUR_USERNAME/YOUR_REPO@main/blocker.js";
-
-    function openInBlank() {
-        const win = window.open('about:blank', '_blank');
-        
-        if (!win || win.closed || typeof win.closed === 'undefined') {
-            document.getElementById('popup-warning').style.display = 'block';
-            return false;
+    // ===== 1. NEUTRALIZE PLAUSIBLE GLOBAL =====
+    // This prevents the script from ever functioning
+    window.plausible = function() {
+        console.log('[BLOCKED] Plausible event blocked:', arguments);
+        // Still call callback if provided (so UI doesn't break)
+        var args = Array.prototype.slice.call(arguments);
+        var lastArg = args[args.length - 1];
+        if (lastArg && typeof lastArg.callback === 'function') {
+            setTimeout(lastArg.callback, 0);
         }
-
-        document.getElementById('popup-warning').style.display = 'none';
-
-        win.document.title = "Google Drive";
-        win.document.body.style.margin = "0";
-        win.document.body.style.height = "100vh";
-        
-        if (targetIcon) {
-            const favicon = win.document.createElement('link');
-            favicon.rel = 'icon';
-            favicon.type = 'image/x-icon';
-            favicon.href = targetIcon;
-            win.document.head.appendChild(favicon);
-        }
-
-        // Inject blocker script into the new window
-        const blockerScript = win.document.createElement('script');
-        blockerScript.src = BLOCKER_SCRIPT_URL;
-        win.document.head.appendChild(blockerScript);
-
-        // Create iframe
-        const iframe = win.document.createElement('iframe');
-        iframe.src = targetUrl;
-        iframe.style.width = "100%";
-        iframe.style.height = "100%";
-        iframe.style.border = "none";
-        iframe.sandbox = "allow-scripts allow-same-origin allow-forms allow-popups";
-
-        win.document.body.appendChild(iframe);
-        
-        // Try to inject blocker into iframe (will fail cross-origin, but worth trying)
-        iframe.onload = function() {
-            try {
-                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-                const iframeBlocker = iframeDoc.createElement('script');
-                iframeBlocker.src = BLOCKER_SCRIPT_URL;
-                iframeDoc.head.appendChild(iframeBlocker);
-                console.log('[BLOCKER] Injected into iframe');
-            } catch(e) {
-                console.log('[BLOCKER] Cannot inject into iframe (cross-origin) - using parent-level interception');
-            }
-        };
-
         return true;
-    }
-
-    window.onload = function() {
-        openInBlank();
     };
-</script>
-
-</body>
-</html>
+    window.plausible.q = [];
+    
+    // ===== 2. BLOCK FETCH TO SENTY =====
+    const origFetch = window.fetch;
+    window.fetch = function() {
+        var url = arguments[0];
+        var urlStr = typeof url === 'string' ? url : (url && url.url ? url.url : String(url));
+        for (var i = 0; i < BLOCKED_ORIGINS.length; i++) {
+            if (urlStr.includes(BLOCKED_ORIGINS[i])) {
+                console.log('[BLOCKED] fetch:', urlStr);
+                return Promise.resolve(new Response('', { status: 204 }));
+            }
+        }
+        return origFetch.apply(this, arguments);
+    };
+    
+    // ===== 3. BLOCK XHR TO SENTY =====
+    const origOpen = XMLHttpRequest.prototype.open;
+    XMLHttpRequest.prototype.open = function(method, url) {
+        var urlStr = String(url);
+        for (var i = 0; i < BLOCKED_ORIGINS.length; i++) {
+            if (urlStr.includes(BLOCKED_ORIGINS[i])) {
+                console.log('[BLOCKED] XHR:', urlStr);
+                this._blocked = true;
+                return origOpen.call(this, method, 'data:text/plain,blocked');
+            }
+        }
+        this._blocked = false;
+        return origOpen.apply(this, arguments);
+    };
+    
+    const origSend = XMLHttpRequest.prototype.send;
+    XMLHttpRequest.prototype.send = function() {
+        if (this._blocked) {
+            var self = this;
+            setTimeout(function() {
+                self.readyState = 4;
+                self.status = 204;
+                self.statusText = 'Blocked';
+                if (self.onreadystatechange) self.onreadystatechange();
+                if (self.onload) self.onload();
+                if (self.onloadend) self.onloadend();
+            }, 0);
+            return;
+        }
+        return origSend.apply(this, arguments);
+    };
+    
+    // ===== 4. BLOCK THE PLAUSIBLE SCRIPT FROM LOADING =====
+    // Override createElement to block script tags with senty src
+    const origCreateElement = document.createElement;
+    document.createElement = function(tagName) {
+        var el = origCreateElement.call(document, tagName);
+        if (tagName.toLowerCase() === 'script') {
+            var origSetAttribute = el.setAttribute;
+            el.setAttribute = function(name, value) {
+                if (name === 'src' && value) {
+                    for (var i = 0; i < BLOCKED_ORIGINS.length; i++) {
+                        if (value.includes(BLOCKED_ORIGINS[i])) {
+                            console.log('[BLOCKED] Script src blocked:', value);
+                            // Don't set the src, but return normally so page doesn't break
+                            return;
+                        }
+                    }
+                }
+                return origSetAttribute.call(this, name, value);
+            };
+            
+            // Also intercept direct src property setting
+            var srcDescriptor = Object.getOwnPropertyDescriptor(HTMLScriptElement.prototype, 'src');
+            if (srcDescriptor && srcDescriptor.set) {
+                Object.defineProperty(el, 'src', {
+                    set: function(value) {
+                        for (var i = 0; i < BLOCKED_ORIGINS.length; i++) {
+                            if (value && value.includes(BLOCKED_ORIGINS[i])) {
+                                console.log('[BLOCKED] Script src property blocked:', value);
+                                return;
+                            }
+                        }
+                        srcDescriptor.set.call(this, value);
+                    },
+                    get: function() {
+                        return srcDescriptor.get.call(this);
+                    }
+                });
+            }
+        }
+        return el;
+    };
+    
+    // ===== 5. REMOVE EXISTING PLAUSIBLE SCRIPTS =====
+    function removePlausibleScripts() {
+        var scripts = document.querySelectorAll('script[src*="senty.com.au"], script[src*="plausible"]');
+        scripts.forEach(function(script) {
+            console.log('[BLOCKED] Removed existing Plausible script:', script.src);
+            script.remove();
+        });
+    }
+    removePlausibleScripts();
+    
+    // ===== 6. MUTATION OBSERVER TO CATCH DYNAMICALLY ADDED PLAUSIBLE SCRIPTS =====
+    var observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            mutation.addedNodes.forEach(function(node) {
+                if (node.nodeType !== 1) return;
+                
+                // Block script tags
+                if (node.tagName && node.tagName.toLowerCase() === 'script') {
+                    var src = node.src || node.getAttribute('src') || '';
+                    for (var i = 0; i < BLOCKED_ORIGINS.length; i++) {
+                        if (src.includes(BLOCKED_ORIGINS[i])) {
+                            console.log('[BLOCKED] Dynamic Plausible script removed:', src);
+                            node.remove();
+                            return;
+                        }
+                    }
+                }
+            });
+        });
+    });
+    
+    observer.observe(document.documentElement, {
+        childList: true,
+        subtree: true
+    });
+    
+    // ===== 7. BLOCK BEACON API TO SENTY =====
+    const origBeacon = navigator.sendBeacon;
+    navigator.sendBeacon = function(url, data) {
+        for (var i = 0; i < BLOCKED_ORIGINS.length; i++) {
+            if (url.includes(BLOCKED_ORIGINS[i])) {
+                console.log('[BLOCKED] beacon:', url);
+                return true;
+            }
+        }
+        return origBeacon.apply(this, arguments);
+    };
+    
+    // ===== 8. BLOCK OUTBOUND LINK TRACKING =====
+    // Plausible adds click listeners that redirect through their tracker
+    // We remove those specific listeners by cloning and replacing elements
+    function cleanPlausibleListeners() {
+        var links = document.querySelectorAll('a[href]');
+        links.forEach(function(link) {
+            // Check if Plausible has attached its click handler
+            // We can't directly remove it, but we can clone the element
+            // which strips all event listeners
+            var clone = link.cloneNode(true);
+            link.parentNode.replaceChild(clone, link);
+        });
+    }
+    
+    // Run after page load and periodically
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', cleanPlausibleListeners);
+    } else {
+        cleanPlausibleListeners();
+    }
+    setInterval(cleanPlausibleListeners, 3000);
+    
+    console.log('[BLOCKER] Plausible/Senty analytics neutralized');
+})();
