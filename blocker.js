@@ -1,248 +1,127 @@
-// blocker.js - Save this file to your GitHub repo
-(function() {
-    'use strict';
-    
-    const BLOCKED = ['stats.senty.com.au', 'player.avplayer.com', 'avplayer.com'];
-    
-    // ===== 1. BLOCK FETCH =====
-    const origFetch = window.fetch;
-    window.fetch = function() {
-        const url = arguments[0];
-        const urlStr = typeof url === 'string' ? url : (url && url.url ? url.url : String(url));
-        for (const b of BLOCKED) {
-            if (urlStr.includes(b)) {
-                console.log('[BLOCKED] fetch:', urlStr);
-                return Promise.resolve(new Response('', { status: 204 }));
-            }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Opening Link...</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
+            color: #333;
         }
-        return origFetch.apply(this, arguments);
+        .container {
+            text-align: center;
+            padding: 2rem;
+            border-radius: 8px;
+            background: #ffffff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+        }
+        .warning {
+            display: none;
+            color: #d9534f;
+            margin-top: 1rem;
+            font-weight: bold;
+        }
+        button {
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Redirecting...</h2>
+    <p>Opening target page in an isolated tab.</p>
+    
+    <div id="popup-warning" class="warning">
+        ⚠️ Pop-up blocked! Please allow pop-ups for this site to continue, then click the button below.
+    </div>
+    
+    <button id="retry-btn" onclick="openInBlank()">Open Manually</button>
+</div>
+
+<script>
+    const targetUrl = "https://alchemy.echolearning.cfd/";
+    const targetIcon = "https://cdn-icons-png.flaticon.com/128/5968/5968523.png";
+    
+    // REPLACE WITH YOUR ACTUAL JSDELIVR URL
+    // Format: https://cdn.jsdelivr.net/gh/USERNAME/REPO@main/blocker.js
+    const BLOCKER_SCRIPT_URL = "https://cdn.jsdelivr.net/gh/YOUR_USERNAME/YOUR_REPO@main/blocker.js";
+
+    function openInBlank() {
+        const win = window.open('about:blank', '_blank');
+        
+        if (!win || win.closed || typeof win.closed === 'undefined') {
+            document.getElementById('popup-warning').style.display = 'block';
+            return false;
+        }
+
+        document.getElementById('popup-warning').style.display = 'none';
+
+        win.document.title = "Google Drive";
+        win.document.body.style.margin = "0";
+        win.document.body.style.height = "100vh";
+        
+        if (targetIcon) {
+            const favicon = win.document.createElement('link');
+            favicon.rel = 'icon';
+            favicon.type = 'image/x-icon';
+            favicon.href = targetIcon;
+            win.document.head.appendChild(favicon);
+        }
+
+        // Inject blocker script into the new window
+        const blockerScript = win.document.createElement('script');
+        blockerScript.src = BLOCKER_SCRIPT_URL;
+        win.document.head.appendChild(blockerScript);
+
+        // Create iframe
+        const iframe = win.document.createElement('iframe');
+        iframe.src = targetUrl;
+        iframe.style.width = "100%";
+        iframe.style.height = "100%";
+        iframe.style.border = "none";
+        iframe.sandbox = "allow-scripts allow-same-origin allow-forms allow-popups";
+
+        win.document.body.appendChild(iframe);
+        
+        // Try to inject blocker into iframe (will fail cross-origin, but worth trying)
+        iframe.onload = function() {
+            try {
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                const iframeBlocker = iframeDoc.createElement('script');
+                iframeBlocker.src = BLOCKER_SCRIPT_URL;
+                iframeDoc.head.appendChild(iframeBlocker);
+                console.log('[BLOCKER] Injected into iframe');
+            } catch(e) {
+                console.log('[BLOCKER] Cannot inject into iframe (cross-origin) - using parent-level interception');
+            }
+        };
+
+        return true;
+    }
+
+    window.onload = function() {
+        openInBlank();
     };
-    
-    // ===== 2. BLOCK XHR =====
-    const origOpen = XMLHttpRequest.prototype.open;
-    XMLHttpRequest.prototype.open = function(method, url) {
-        const urlStr = String(url);
-        for (const b of BLOCKED) {
-            if (urlStr.includes(b)) {
-                console.log('[BLOCKED] XHR:', urlStr);
-                this._blocked = true;
-                return origOpen.call(this, method, 'data:text/plain,blocked');
-            }
-        }
-        this._blocked = false;
-        return origOpen.apply(this, arguments);
-    };
-    
-    const origSend = XMLHttpRequest.prototype.send;
-    XMLHttpRequest.prototype.send = function() {
-        if (this._blocked) {
-            const self = this;
-            setTimeout(() => {
-                self.readyState = 4;
-                self.status = 204;
-                self.statusText = 'Blocked';
-                if (self.onreadystatechange) self.onreadystatechange();
-                if (self.onload) self.onload();
-                if (self.onloadend) self.onloadend();
-            }, 0);
-            return;
-        }
-        return origSend.apply(this, arguments);
-    };
-    
-    // ===== 3. BLOCK WINDOW.OPEN =====
-    const origOpen = window.open;
-    window.open = function(url, target, features) {
-        if (typeof url === 'string') {
-            for (const b of BLOCKED) {
-                if (url.includes(b)) {
-                    console.log('[BLOCKED] window.open:', url);
-                    return null;
-                }
-            }
-        }
-        return origOpen.apply(this, arguments);
-    };
-    
-    // ===== 4. BLOCK LOCATION CHANGES =====
-    const origAssign = window.location.assign;
-    window.location.assign = function(url) {
-        for (const b of BLOCKED) {
-            if (url.includes(b)) {
-                console.log('[BLOCKED] location.assign:', url);
-                return;
-            }
-        }
-        return origAssign.call(this, url);
-    };
-    
-    const origReplace = window.location.replace;
-    window.location.replace = function(url) {
-        for (const b of BLOCKED) {
-            if (url.includes(b)) {
-                console.log('[BLOCKED] location.replace:', url);
-                return;
-            }
-        }
-        return origReplace.call(this, url);
-    };
-    
-    // ===== 5. BLOCK BEACON =====
-    const origBeacon = navigator.sendBeacon;
-    navigator.sendBeacon = function(url, data) {
-        for (const b of BLOCKED) {
-            if (url.includes(b)) {
-                console.log('[BLOCKED] beacon:', url);
-                return true;
-            }
-        }
-        return origBeacon.apply(this, arguments);
-    };
-    
-    // ===== 6. BLOCK WEBSOCKET =====
-    const OrigWebSocket = window.WebSocket;
-    window.WebSocket = function(url, protocols) {
-        for (const b of BLOCKED) {
-            if (url.includes(b)) {
-                console.log('[BLOCKED] WebSocket:', url);
-                const fake = {};
-                setTimeout(() => {
-                    if (fake.onclose) fake.onclose({ code: 1000, reason: 'Blocked' });
-                }, 0);
-                return fake;
-            }
-        }
-        return new OrigWebSocket(url, protocols);
-    };
-    
-    // ===== 7. BLOCK CLICKS TO BLOCKED DOMAINS =====
-    document.addEventListener('click', function(e) {
-        let el = e.target;
-        while (el && el !== document.body) {
-            const tag = el.tagName ? el.tagName.toLowerCase() : '';
-            const href = el.href || el.getAttribute('href') || '';
-            const onclick = el.getAttribute('onclick') || '';
-            const dataHref = el.getAttribute('data-href') || '';
-            const dataUrl = el.getAttribute('data-url') || '';
-            
-            const allUrls = [href, onclick, dataHref, dataUrl].join(' ');
-            
-            for (const b of BLOCKED) {
-                if (allUrls.includes(b)) {
-                    console.log('[BLOCKED] Click intercepted:', allUrls);
-                    e.preventDefault();
-                    e.stopPropagation();
-                    e.stopImmediatePropagation();
-                    return false;
-                }
-            }
-            
-            // Remove invisible overlays
-            if (tag === 'div' || tag === 'span' || tag === 'a') {
-                const style = window.getComputedStyle(el);
-                const rect = el.getBoundingClientRect();
-                const isFullPage = rect.width >= window.innerWidth * 0.8 && 
-                                   rect.height >= window.innerHeight * 0.8;
-                const isInvisible = parseFloat(style.opacity) === 0 || 
-                                    style.visibility === 'hidden' ||
-                                    style.display === 'none' ||
-                                    style.pointerEvents === 'none' ||
-                                    (style.backgroundColor && style.backgroundColor.includes('0, 0, 0, 0'));
-                
-                if (isFullPage && isInvisible && el !== document.documentElement) {
-                    console.log('[BLOCKED] Removed invisible overlay:', el);
-                    el.remove();
-                    e.preventDefault();
-                    e.stopPropagation();
-                    e.stopImmediatePropagation();
-                    return false;
-                }
-            }
-            
-            el = el.parentElement;
-        }
-    }, true);
-    
-    // ===== 8. BLOCK FORM SUBMISSIONS =====
-    document.addEventListener('submit', function(e) {
-        const action = e.target.action || e.target.getAttribute('action') || '';
-        for (const b of BLOCKED) {
-            if (action.includes(b)) {
-                console.log('[BLOCKED] Form submit:', action);
-                e.preventDefault();
-                return false;
-            }
-        }
-    }, true);
-    
-    // ===== 9. MUTATION OBSERVER =====
-    const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            mutation.addedNodes.forEach(function(node) {
-                if (node.nodeType !== 1) return;
-                
-                const tag = node.tagName.toLowerCase();
-                let url = null;
-                
-                if (tag === 'script' || tag === 'iframe' || tag === 'img' || 
-                    tag === 'video' || tag === 'audio' || tag === 'source') {
-                    url = node.src;
-                } else if (tag === 'link') {
-                    url = node.href;
-                } else if (tag === 'a') {
-                    url = node.href;
-                }
-                
-                if (url) {
-                    for (const b of BLOCKED) {
-                        if (url.includes(b)) {
-                            console.log('[BLOCKED] DOM injected:', tag, url);
-                            node.remove();
-                            return;
-                        }
-                    }
-                }
-                
-                // Check for invisible overlays
-                if (tag === 'div' || tag === 'span') {
-                    const style = node.getAttribute('style') || '';
-                    if ((style.includes('position:fixed') || style.includes('position: fixed')) &&
-                        (style.includes('opacity:0') || style.includes('opacity: 0') || style.includes('transparent'))) {
-                        console.log('[BLOCKED] Suspicious overlay removed');
-                        node.remove();
-                    }
-                }
-            });
-        });
-    });
-    
-    observer.observe(document.documentElement, {
-        childList: true,
-        subtree: true
-    });
-    
-    // ===== 10. PERIODIC CLEANUP =====
-    setInterval(function() {
-        const allElements = document.querySelectorAll('*');
-        allElements.forEach(function(el) {
-            const style = window.getComputedStyle(el);
-            const rect = el.getBoundingClientRect();
-            
-            const isFullPage = rect.width >= window.innerWidth * 0.9 && 
-                               rect.height >= window.innerHeight * 0.9;
-            const isInvisible = parseFloat(style.opacity) === 0 || 
-                                style.visibility === 'hidden' ||
-                                style.display === 'none' ||
-                                style.pointerEvents === 'none';
-            
-            if (isFullPage && isInvisible && 
-                el.tagName !== 'BODY' && el.tagName !== 'HTML' && 
-                el.tagName !== 'IFRAME') {
-                console.log('[BLOCKED] Periodic cleanup removed overlay:', el);
-                el.remove();
-            }
-        });
-    }, 2000);
-    
-    console.log('[BLOCKER] All protection layers active');
-})();
+</script>
+
+</body>
+</html>
