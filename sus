@@ -298,6 +298,15 @@
     background:var(--accent);color:#fff;border:none;border-radius:8px;padding:4px 12px;font-size:12px;font-weight:600;
   }
   .group-member-row{display:flex;align-items:center;gap:8px;padding:6px 4px;cursor:pointer;}
+  .group-manage-member-row{
+    display:flex;align-items:center;gap:8px;padding:6px 4px;
+  }
+  .group-manage-member-row .row-main{flex:1;min-width:0;}
+  .kick-btn{
+    background:none;border:1px solid var(--border);color:var(--danger);
+    border-radius:8px;padding:4px 10px;font-size:11.5px;font-weight:600;flex-shrink:0;
+  }
+  .kick-btn:hover{background:var(--danger);color:#fff;}
   .admin-user-row{
     display:flex;align-items:center;gap:10px;padding:8px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;
   }
@@ -510,6 +519,7 @@
             <button class="icon-btn" id="voice-call-btn" title="Voice call">📞</button>
             <button class="icon-btn" id="video-call-btn" title="Video call">🎥</button>
             <button class="icon-btn" id="unfriend-btn" title="Remove friend">🗑</button>
+            <button class="icon-btn" id="manage-group-btn" title="Group members" style="display:none;">👥</button>
             <button class="icon-btn" id="leave-group-btn" title="Leave group" style="display:none;">🚪</button>
           </div>
         </div>
@@ -617,6 +627,24 @@
     <div class="close-row">
       <button class="ghost-btn" id="group-cancel-btn">Cancel</button>
       <button class="primary-btn" id="group-create-btn" style="width:auto;">Create</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ GROUP MANAGE MODAL (members / add / kick) ============ -->
+<div class="modal-overlay" id="group-manage-modal">
+  <div class="modal" style="width:420px;max-height:82vh;overflow-y:auto;">
+    <h3 id="group-manage-title">Group members</h3>
+    <div id="group-manage-list" style="margin-bottom:16px;"></div>
+    <div style="border-top:1px solid var(--border);padding-top:14px;">
+      <div class="field">
+        <label>Add friends</label>
+        <div id="group-add-picker" style="max-height:180px;overflow-y:auto;border:1px solid var(--border);border-radius:10px;padding:6px;"></div>
+      </div>
+      <button class="primary-btn" id="group-add-confirm-btn" style="width:auto;">Add selected</button>
+    </div>
+    <div class="close-row">
+      <button class="ghost-btn" id="group-manage-close-btn">Close</button>
     </div>
   </div>
 </div>
@@ -901,9 +929,29 @@ $('auth-submit-btn').onclick = async () => {
   $('auth-submit-btn').disabled = false;
 };
 
-$('logout-btn').onclick = () => signOut(auth);
+$('logout-btn').onclick = async () => {
+  if (currentUser) {
+    await update(ref(db, 'users/' + currentUser.uid), { online: false, lastSeen: serverTimestamp() }).catch(() => {});
+  }
+  signOut(auth);
+};
 
 /* ---------------- Enter app / auth state ---------------- */
+let presenceInitialized = false;
+function setupPresence(uid) {
+  if (presenceInitialized) return;
+  presenceInitialized = true;
+  const myStatusRef = ref(db, 'users/' + uid);
+  onValue(ref(db, '.info/connected'), (snap) => {
+    if (snap.val() !== true) return;
+    // Re-registering onDisconnect every time we (re)connect is the part
+    // that's easy to miss — without it, presence only survives the very
+    // first connection of the session.
+    onDisconnect(myStatusRef).update({ online: false, lastSeen: serverTimestamp() })
+      .then(() => update(myStatusRef, { online: true }));
+  });
+}
+
 async function enterApp(user, profile) {
   // Moderation gate #1: banned accounts are signed out immediately.
   if (profile.banned) {
@@ -932,10 +980,12 @@ async function enterApp(user, profile) {
   $('my-name').innerText = myProfile.username;
   $('my-username-display').innerText = '@' + myProfile.usernameLower;
 
-  // presence
-  const myStatusRef = ref(db, 'users/' + user.uid);
-  onDisconnect(myStatusRef).update({ online: false, lastSeen: serverTimestamp() });
-  update(myStatusRef, { online: true });
+  // presence — re-armed on every (re)connect. Firebase only fires a
+  // registered onDisconnect hook once; after any reconnect (sleep/wake,
+  // a wifi blip, a backgrounded tab resuming) that hook is gone, so
+  // without re-registering it here, a user's "online" status can get
+  // stuck forever the next time they actually go offline.
+  setupPresence(user.uid);
 
   listenFriends();
   listenRequests();
@@ -1013,34 +1063,61 @@ document.querySelectorAll('.tab').forEach(tab => {
 });
 
 /* ---------------- Friends / requests / search ---------------- */
+let friendProfileUnsubs = {}; // uid -> unsubscribe fn, keeps friend status live
 function listenFriends() {
   const friendsRef = ref(db, 'friends/' + currentUser.uid);
-  onValue(friendsRef, async (snap) => {
+  onValue(friendsRef, (snap) => {
     const uids = snap.exists() ? Object.keys(snap.val()) : [];
-    friendsCache = {};
-    const list = $('friends-list');
-    list.innerHTML = '';
-    if (uids.length === 0) {
-      list.innerHTML = '<div class="empty-state">No friends yet. Use "Find" to add some!</div>';
-    }
-    for (const uid of uids) {
-      const uSnap = await get(ref(db, 'users/' + uid));
-      if (!uSnap.exists()) continue;
-      const u = uSnap.val();
-      friendsCache[uid] = u;
-      const row = document.createElement('div');
-      row.className = 'row';
-      row.innerHTML = `
-        <img class="avatar" src="${esc(u.photoURL || defaultAvatar(u.username))}">
-        <div class="dot ${u.online ? 'online' : ''}"></div>
-        <div class="row-main">
-          <div class="row-title">${esc(u.username)}</div>
-          <div class="row-sub">${u.online ? 'Online' : 'Offline'}</div>
-        </div>`;
-      row.onclick = () => openChat(uid, u);
-      list.appendChild(row);
-    }
-    renderChatsList();
+    const uidSet = new Set(uids);
+
+    // Stop listening to anyone who's no longer a friend.
+    Object.keys(friendProfileUnsubs).forEach(uid => {
+      if (!uidSet.has(uid)) {
+        friendProfileUnsubs[uid]();
+        delete friendProfileUnsubs[uid];
+        delete friendsCache[uid];
+      }
+    });
+
+    // A live listener per friend (rather than a one-time fetch) is what
+    // makes their online/offline dot actually update in real time instead
+    // of only refreshing whenever your friends list itself changes.
+    uids.forEach(uid => {
+      if (friendProfileUnsubs[uid]) return;
+      friendProfileUnsubs[uid] = onValue(ref(db, 'users/' + uid), (uSnap) => {
+        if (uSnap.exists()) {
+          friendsCache[uid] = uSnap.val();
+          renderFriendsList(uids);
+          renderChatsList();
+        }
+      });
+    });
+
+    renderFriendsList(uids);
+  });
+}
+
+function renderFriendsList(uids) {
+  const list = $('friends-list');
+  list.innerHTML = '';
+  if (uids.length === 0) {
+    list.innerHTML = '<div class="empty-state">No friends yet. Use "Find" to add some!</div>';
+    return;
+  }
+  uids.forEach(uid => {
+    const u = friendsCache[uid];
+    if (!u) return;
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.innerHTML = `
+      <img class="avatar" src="${esc(u.photoURL || defaultAvatar(u.username))}">
+      <div class="dot ${u.online ? 'online' : ''}"></div>
+      <div class="row-main">
+        <div class="row-title">${esc(u.username)}</div>
+        <div class="row-sub">${u.online ? 'Online' : 'Offline'}</div>
+      </div>`;
+    row.onclick = () => openChat(uid, u);
+    list.appendChild(row);
   });
 }
 
@@ -1236,6 +1313,10 @@ function listenGroups() {
         off(ref(db, 'groups/' + gid));
         delete groupsCache[gid];
         knownGroupIds.delete(gid);
+        if (openChatKind === 'group' && openChatId === gid) {
+          showToast("You're no longer in that group.");
+          closeOpenChat();
+        }
       }
     });
 
@@ -1343,18 +1424,31 @@ $('group-create-btn').onclick = async () => {
 
   const groupRef = push(ref(db, 'groups'));
   const groupId = groupRef.key;
-  await set(groupRef, {
-    name, photoURL: null, createdBy: currentUser.uid, memberUids, createdAt: Date.now()
+  const now = Date.now();
+
+  // One atomic multi-path update instead of a sequential per-member loop:
+  // either everyone's membership index gets written together, or none of
+  // it does — no more "it worked for me but not for the people I invited"
+  // if a single write in the middle fails.
+  const updates = {
+    [`groups/${groupId}`]: { name, photoURL: null, createdBy: currentUser.uid, memberUids, createdAt: now }
+  };
+  Object.keys(memberUids).forEach(uid => {
+    updates[`userGroups/${uid}/${groupId}`] = {
+      lastMessagePreview: 'Group created', lastTimestamp: now, lastSenderUid: currentUser.uid
+    };
   });
 
-  const now = Date.now();
-  for (const uid of Object.keys(memberUids)) {
-    await set(ref(db, `userGroups/${uid}/${groupId}`), {
-      lastMessagePreview: 'Group created', lastTimestamp: now, lastSenderUid: currentUser.uid
-    });
+  try {
+    await update(ref(db), updates);
+    $('group-modal').classList.remove('show');
+    showToast('Group created!');
+  } catch (err) {
+    console.error('Group creation failed:', err);
+    showToast('Could not create the group: ' + (err.message || 'permission error') +
+      '. If this keeps happening, your database rules likely need to allow the creator to write ' +
+      'other members\' userGroups entry.');
   }
-  $('group-modal').classList.remove('show');
-  showToast('Group created!');
 };
 
 /* ---------------- Chat window ---------------- */
@@ -1391,6 +1485,7 @@ function openChat(uid, u) {
   $('chat-header-name').innerText = u.username;
   $('chat-header-status').innerText = u.online ? 'Online' : 'Offline';
   $('unfriend-btn').style.display = 'inline-flex';
+  $('manage-group-btn').style.display = 'none';
   $('leave-group-btn').style.display = 'none';
   $('group-call-banner').style.display = 'none';
   $('messages').innerHTML = '';
@@ -1457,6 +1552,7 @@ async function openGroupChat(groupId, group) {
   $('chat-header-name').innerText = '👥 ' + group.name;
   $('chat-header-status').innerText = Object.keys(group.memberUids || {}).length + ' members';
   $('unfriend-btn').style.display = 'none';
+  $('manage-group-btn').style.display = 'inline-flex';
   $('leave-group-btn').style.display = 'inline-flex';
   $('messages').innerHTML = '';
   lastDay = null;
@@ -1531,6 +1627,121 @@ $('leave-group-btn').onclick = async () => {
   await remove(ref(db, `groups/${groupId}/memberUids/${currentUser.uid}`));
   await remove(ref(db, `userGroups/${currentUser.uid}/${groupId}`));
   closeOpenChat();
+};
+
+/* ---------------- Group management (add / kick members) ---------------- */
+$('manage-group-btn').onclick = () => {
+  if (openChatKind !== 'group' || !openChatId) return;
+  openGroupManageModal(openChatId);
+};
+$('group-manage-close-btn').onclick = () => $('group-manage-modal').classList.remove('show');
+
+async function openGroupManageModal(groupId) {
+  const group = groupsCache[groupId];
+  if (!group) return;
+  const isCreator = group.createdBy === currentUser.uid;
+  const memberUids = Object.keys(group.memberUids || {});
+
+  // Make sure we have a display profile for every current member — this
+  // matters right after adding someone, since they may not be in
+  // openGroupMembersForChat yet.
+  if (!openGroupMembersForChat) openGroupMembersForChat = {};
+  for (const uid of memberUids) {
+    if (openGroupMembersForChat[uid]) continue;
+    if (uid === currentUser.uid) { openGroupMembersForChat[uid] = myProfile; continue; }
+    if (friendsCache[uid]) { openGroupMembersForChat[uid] = friendsCache[uid]; continue; }
+    const s = await get(ref(db, 'users/' + uid));
+    if (s.exists()) openGroupMembersForChat[uid] = s.val();
+  }
+
+  $('group-manage-title').innerText = `${group.name} — ${memberUids.length} member${memberUids.length === 1 ? '' : 's'}`;
+
+  // Current members, with a Kick button when you're the creator (never on yourself).
+  const memberList = $('group-manage-list');
+  memberList.innerHTML = '';
+  memberUids.forEach(uid => {
+    const u = openGroupMembersForChat[uid];
+    if (!u) return;
+    const row = document.createElement('div');
+    row.className = 'group-manage-member-row';
+    row.innerHTML = `
+      <img class="avatar avatar-sm" src="${esc(u.photoURL || defaultAvatar(u.username))}">
+      <div class="row-main">
+        <div class="row-title">${esc(u.username)}${uid === group.createdBy ? ' 👑' : ''}${uid === currentUser.uid ? ' (you)' : ''}</div>
+      </div>`;
+    if (isCreator && uid !== currentUser.uid) {
+      const kickBtn = document.createElement('button');
+      kickBtn.className = 'kick-btn';
+      kickBtn.innerText = 'Kick';
+      kickBtn.onclick = () => kickGroupMember(groupId, uid, u.username);
+      row.appendChild(kickBtn);
+    }
+    memberList.appendChild(row);
+  });
+
+  // Anyone in the group can add more friends who aren't already members.
+  const addPicker = $('group-add-picker');
+  addPicker.innerHTML = '';
+  const addableUids = Object.keys(friendsCache).filter(uid => !group.memberUids || !group.memberUids[uid]);
+  if (addableUids.length === 0) {
+    addPicker.innerHTML = '<div class="empty-state">No friends left to add.</div>';
+  } else {
+    addableUids.forEach(uid => {
+      const u = friendsCache[uid];
+      const row = document.createElement('label');
+      row.className = 'group-member-row';
+      row.innerHTML = `
+        <input type="checkbox" value="${uid}" class="group-add-checkbox">
+        <img class="avatar avatar-sm" src="${esc(u.photoURL || defaultAvatar(u.username))}">
+        <span style="font-size:13px;">${esc(u.username)}</span>`;
+      addPicker.appendChild(row);
+    });
+  }
+
+  $('group-manage-modal').classList.add('show');
+}
+
+async function kickGroupMember(groupId, uid, username) {
+  if (!confirm(`Remove ${username} from the group?`)) return;
+  try {
+    // One atomic update so the member's own index and the group's roster
+    // stay in sync — never a state where they're removed from one but not the other.
+    await update(ref(db), {
+      [`groups/${groupId}/memberUids/${uid}`]: null,
+      [`userGroups/${uid}/${groupId}`]: null
+    });
+    showToast(`${username} was removed from the group.`);
+    await openGroupManageModal(groupId); // refresh the modal in place
+  } catch (err) {
+    console.error('Kick failed:', err);
+    showToast('Could not remove that member: ' + (err.message || 'permission error'));
+  }
+}
+
+$('group-add-confirm-btn').onclick = async () => {
+  if (openChatKind !== 'group' || !openChatId) return;
+  const groupId = openChatId;
+  const checked = [...document.querySelectorAll('.group-add-checkbox:checked')].map(c => c.value);
+  if (checked.length === 0) { showToast('Select at least one friend to add.'); return; }
+
+  const now = Date.now();
+  const updates = {};
+  checked.forEach(uid => {
+    updates[`groups/${groupId}/memberUids/${uid}`] = true;
+    updates[`userGroups/${uid}/${groupId}`] = {
+      lastMessagePreview: `Added to ${groupsCache[groupId]?.name || 'the group'}`,
+      lastTimestamp: now, lastSenderUid: currentUser.uid
+    };
+  });
+
+  try {
+    await update(ref(db), updates);
+    showToast('Added to the group.');
+    await openGroupManageModal(groupId); // refresh the modal in place
+  } catch (err) {
+    console.error('Add member failed:', err);
+    showToast('Could not add member(s): ' + (err.message || 'permission error'));
+  }
 };
 
 const REACTION_EMOJIS = ['❤️','😂','👍','😮','😢'];
