@@ -376,6 +376,20 @@
   .call-btn.active-off{background:#fff;color:#111;}
   .call-btn.end{background:var(--danger);}
   .audio-only-avatar{width:130px;height:130px;border-radius:50%;margin-bottom:14px;}
+  .volume-control-wrap{position:relative;}
+  .volume-slider-panel{
+    display:none;align-items:center;gap:8px;position:absolute;bottom:66px;left:50%;
+    transform:translateX(-50%);background:rgba(20,22,30,.94);border:1px solid rgba(255,255,255,.15);
+    border-radius:12px;padding:10px 14px;box-shadow:0 10px 30px rgba(0,0,0,.4);white-space:nowrap;
+  }
+  .volume-slider-panel.show{display:flex;}
+  .volume-slider-label{font-size:13px;}
+  #call-volume-slider{width:120px;accent-color:var(--accent);}
+
+  /* ---------- Message viewed / read receipt ---------- */
+  .seen-line{
+    font-size:11px;color:var(--text-dim);margin-top:3px;padding:0 4px;
+  }
 
   #incoming-call-toast{
     position:fixed;top:20px;right:20px;background:var(--panel);border:1px solid var(--border);
@@ -652,6 +666,14 @@
   <div class="call-controls">
     <button class="call-btn" id="toggle-mic-btn">🎤</button>
     <button class="call-btn" id="toggle-cam-btn">🎥</button>
+    <div class="volume-control-wrap" id="volume-control-wrap">
+      <button class="call-btn" id="toggle-volume-btn">🔊</button>
+      <div class="volume-slider-panel" id="volume-slider-panel">
+        <span class="volume-slider-label">🔉</span>
+        <input type="range" id="call-volume-slider" min="0" max="100" value="100">
+        <span class="volume-slider-label">🔊</span>
+      </div>
+    </div>
     <button class="call-btn end" id="end-call-btn">⏹</button>
   </div>
 </div>
@@ -732,6 +754,8 @@ let openChatId = null;
 let openChatKind = 'dm'; // 'dm' | 'group'
 let messagesUnsub = null;
 let typingUnsub = null;
+let readsUnsub = null;
+let chatReads = {}; // uid -> last-read timestamp, for the currently open chat
 let friendsCache = {};
 let pendingImageDataUrl = null;
 
@@ -1337,6 +1361,8 @@ $('group-create-btn').onclick = async () => {
 function closeOpenChat() {
   if (openChatId) off(ref(db, 'chats/' + openChatId + '/messages'));
   if (typingUnsub) { typingUnsub(); typingUnsub = null; }
+  if (readsUnsub) { readsUnsub(); readsUnsub = null; }
+  chatReads = {};
   messagesUnsub = null;
   if (openChatId) off(ref(db, basePathFor(openChatKind, openChatId) + '/messages'));
   openChatUid = null; openChatId = null; openChatKind = 'dm'; openGroupMembersForChat = null;
@@ -1349,6 +1375,8 @@ function closeOpenChat() {
 function openChat(uid, u) {
   if (openChatId) off(ref(db, basePathFor(openChatKind, openChatId) + '/messages'));
   if (typingUnsub) typingUnsub();
+  if (readsUnsub) readsUnsub();
+  chatReads = {};
   openChatKind = 'dm';
   openChatUid = uid;
   openChatId = chatIdFor(currentUser.uid, uid);
@@ -1372,6 +1400,10 @@ function openChat(uid, u) {
   const msgsRef = ref(db, 'chats/' + thisChatId + '/messages');
   onChildAdded(msgsRef, (data) => {
     appendMessage(data.val(), data.key, 'chats/' + thisChatId, null);
+    if ((data.val() || {}).senderUid !== currentUser.uid && openChatId === thisChatId
+        && document.visibilityState === 'visible') {
+      markChatRead('chats/' + thisChatId);
+    }
   });
   onChildChanged(msgsRef, (data) => {
     updateMessageReactions(data.key, (data.val() || {}).reactions || {});
@@ -1380,6 +1412,14 @@ function openChat(uid, u) {
     const row = document.querySelector(`.bubble-row[data-msg-key="${data.key}"]`);
     if (row) row.remove();
   });
+
+  const readsRef = ref(db, 'chats/' + thisChatId + '/reads');
+  readsUnsub = onValue(readsRef, (snap) => {
+    if (openChatId !== thisChatId) return;
+    chatReads = snap.exists() ? snap.val() : {};
+    renderSeenLine();
+  });
+  markChatRead('chats/' + thisChatId);
 
   const typingRef = ref(db, `typing/${openChatId}/${uid}`);
   typingUnsub = onValue(typingRef, (snap) => {
@@ -1404,6 +1444,8 @@ function openChat(uid, u) {
 async function openGroupChat(groupId, group) {
   if (openChatId) off(ref(db, basePathFor(openChatKind, openChatId) + '/messages'));
   if (typingUnsub) typingUnsub();
+  if (readsUnsub) readsUnsub();
+  chatReads = {};
   openChatKind = 'group';
   openChatUid = null;
   openChatId = groupId;
@@ -1433,6 +1475,10 @@ async function openGroupChat(groupId, group) {
   const msgsRef = ref(db, `groupChats/${groupId}/messages`);
   onChildAdded(msgsRef, (data) => {
     appendMessage(data.val(), data.key, `groupChats/${groupId}`, openGroupMembersForChat);
+    if ((data.val() || {}).senderUid !== currentUser.uid && openChatId === groupId
+        && document.visibilityState === 'visible') {
+      markChatRead(`groupChats/${groupId}`);
+    }
   });
   onChildChanged(msgsRef, (data) => {
     updateMessageReactions(data.key, (data.val() || {}).reactions || {});
@@ -1441,6 +1487,14 @@ async function openGroupChat(groupId, group) {
     const row = document.querySelector(`.bubble-row[data-msg-key="${data.key}"]`);
     if (row) row.remove();
   });
+
+  const readsRef = ref(db, `groupChats/${groupId}/reads`);
+  readsUnsub = onValue(readsRef, (snap) => {
+    if (openChatId !== groupId) return;
+    chatReads = snap.exists() ? snap.val() : {};
+    renderSeenLine();
+  });
+  markChatRead(`groupChats/${groupId}`);
 
   const typingRef = ref(db, `typing/${groupId}`);
   typingUnsub = onValue(typingRef, (snap) => {
@@ -1500,6 +1554,58 @@ function updateMessageReactions(key, reactions) {
   if (reactionsRow) renderReactionPills(reactionsRow, reactions);
 }
 
+/* ---------------- Read receipts ("viewed") ---------------- */
+// Marks that the current user has seen everything in this chat up to now.
+// Stored as a single per-user timestamp under the chat/group, rather than
+// per message, so it stays cheap to read/write as the conversation grows.
+function markChatRead(basePath) {
+  if (!currentUser) return;
+  set(ref(db, `${basePath}/reads/${currentUser.uid}`), Date.now()).catch(() => {});
+}
+
+// If a chat is open but the tab was backgrounded when a message arrived,
+// it isn't really "viewed" yet — catch up once the tab is visible again.
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && openChatId) {
+    markChatRead(basePathFor(openChatKind, openChatId));
+  }
+});
+
+function formatSeenNames(names) {
+  if (names.length === 1) return `${names[0]} viewed`;
+  if (names.length === 2) return `${names[0]} and ${names[1]} viewed`;
+  return `${names.slice(0, -1).join(', ')}, and ${names[names.length - 1]} viewed`;
+}
+
+// Shows "X viewed" / "X, Y, and Z viewed" under the most recent message
+// *you* sent, listing whoever has read at least that far.
+function renderSeenLine() {
+  const container = $('messages');
+  container.querySelectorAll('.seen-line').forEach(el => el.remove());
+
+  const outRows = container.querySelectorAll('.bubble-row.out[data-timestamp]');
+  if (!outRows.length) return;
+  const lastOutRow = outRows[outRows.length - 1];
+  const msgTimestamp = Number(lastOutRow.dataset.timestamp);
+
+  const viewerNames = [];
+  Object.keys(chatReads).forEach((uid) => {
+    if (uid === currentUser.uid) return;
+    const readAt = chatReads[uid];
+    if (!readAt || readAt < msgTimestamp) return;
+    const profile = openChatKind === 'group'
+      ? (openGroupMembersForChat && openGroupMembersForChat[uid])
+      : friendsCache[uid];
+    if (profile) viewerNames.push(profile.username);
+  });
+
+  if (!viewerNames.length) return;
+  const line = document.createElement('div');
+  line.className = 'seen-line';
+  line.innerText = formatSeenNames(viewerNames);
+  lastOutRow.appendChild(line);
+}
+
 let lastDay = null;
 function appendMessage(msg, key, basePath, membersMap) {
   const container = $('messages');
@@ -1515,6 +1621,7 @@ function appendMessage(msg, key, basePath, membersMap) {
   const row = document.createElement('div');
   row.className = 'bubble-row ' + (isOut ? 'out' : 'in');
   if (key) row.dataset.msgKey = key;
+  if (msg.timestamp) row.dataset.timestamp = msg.timestamp;
 
   // Group chats: label who sent each incoming message.
   if (membersMap && !isOut) {
@@ -1601,6 +1708,7 @@ function appendMessage(msg, key, basePath, membersMap) {
   row.appendChild(time);
   container.appendChild(row);
   container.scrollTop = container.scrollHeight;
+  renderSeenLine();
 }
 
 async function sendChatMessage(type, content) {
@@ -1995,11 +2103,36 @@ if ($('back-to-sidebar-btn')) {
 /* =========================================================
    WEBRTC CALLING
    ========================================================= */
+// STUN alone only works when both sides can form a direct peer-to-peer path.
+// Whenever either side is behind a symmetric NAT, a strict firewall, or a
+// different network/ISP that blocks direct UDP, the connection needs a TURN
+// server to relay media instead. Without one, calls will randomly fail to
+// connect across networks even though everything looks fine locally.
+// The TURN entries below use the free Open Relay Project servers so calls
+// work out of the box; they're best-effort and rate-limited, so for a real
+// deployment swap in your own TURN credentials (e.g. from Twilio, Metered,
+// or Cloudflare Calls) — the shape of the config stays the same.
 const rtcConfig = {
   iceServers: [
     { urls: 'stun:stun.l.google.com:19302' },
-    { urls: 'stun:stun1.l.google.com:19302' }
-  ]
+    { urls: 'stun:stun1.l.google.com:19302' },
+    {
+      urls: 'turn:openrelay.metered.ca:80',
+      username: 'openrelayproject',
+      credential: 'openrelayproject'
+    },
+    {
+      urls: 'turn:openrelay.metered.ca:443',
+      username: 'openrelayproject',
+      credential: 'openrelayproject'
+    },
+    {
+      urls: 'turn:openrelay.metered.ca:443?transport=tcp',
+      username: 'openrelayproject',
+      credential: 'openrelayproject'
+    }
+  ],
+  iceCandidatePoolSize: 10
 };
 let pc = null;
 let localStream = null;
@@ -2066,7 +2199,7 @@ async function startCall(type) {
 
   pc = new RTCPeerConnection(rtcConfig);
   localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
-  pc.ontrack = (e) => { $('remote-video').srcObject = e.streams[0]; };
+  pc.ontrack = (e) => { $('remote-video').srcObject = e.streams[0]; $('remote-video').volume = callVolume; };
 
   const callerCandidatesRef = ref(db, `calls/${callId}/callerCandidates`);
   pc.onicecandidate = (e) => { if (e.candidate) push(callerCandidatesRef, e.candidate.toJSON()); };
@@ -2116,7 +2249,7 @@ async function acceptCall(data) {
 
   pc = new RTCPeerConnection(rtcConfig);
   localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
-  pc.ontrack = (e) => { $('remote-video').srcObject = e.streams[0]; };
+  pc.ontrack = (e) => { $('remote-video').srcObject = e.streams[0]; $('remote-video').volume = callVolume; };
 
   const calleeCandidatesRef = ref(db, `calls/${data.callId}/calleeCandidates`);
   pc.onicecandidate = (e) => { if (e.candidate) push(calleeCandidatesRef, e.candidate.toJSON()); };
@@ -2152,6 +2285,7 @@ function openCallUI(peer, type, status) {
   $('local-video').srcObject = localStream;
   $('local-video').style.display = type === 'video' ? 'block' : 'none';
   $('remote-video').style.display = type === 'video' ? 'block' : 'none';
+  resetCallVolumeUI();
   micOn = true; camOn = type === 'video';
   $('toggle-mic-btn').classList.remove('active-off');
   $('toggle-cam-btn').classList.remove('active-off');
@@ -2168,6 +2302,32 @@ $('toggle-cam-btn').onclick = () => {
   localStream?.getVideoTracks().forEach(t => t.enabled = camOn);
   $('toggle-cam-btn').classList.toggle('active-off', !camOn);
 };
+
+// Call audio (output) volume — applies to the remote party's voice/video
+// in a 1:1 call, and to every remote tile in a group call.
+let callVolume = 1;
+function applyCallVolume() {
+  const remote = $('remote-video');
+  if (remote) remote.volume = callVolume;
+  document.querySelectorAll('.group-tile video').forEach(v => { v.volume = callVolume; });
+}
+function resetCallVolumeUI() {
+  callVolume = 1;
+  $('call-volume-slider').value = 100;
+  $('volume-slider-panel').classList.remove('show');
+}
+$('toggle-volume-btn').onclick = (e) => {
+  e.stopPropagation();
+  $('volume-slider-panel').classList.toggle('show');
+};
+$('call-volume-slider').addEventListener('input', (e) => {
+  callVolume = Number(e.target.value) / 100;
+  applyCallVolume();
+});
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('#volume-control-wrap')) $('volume-slider-panel').classList.remove('show');
+});
+
 $('end-call-btn').onclick = () => groupCallId ? endGroupCall() : endCall(true);
 
 async function endCall(notify) {
@@ -2185,10 +2345,11 @@ async function endCall(notify) {
 
 /* =========================================================
    GROUP CALLING (WebRTC mesh — everyone connects to everyone)
-   NOTE: this is more experimental than 1:1 calls. With no TURN
-   server configured (only STUN), calls work best when everyone
-   is on a normal home/office network. 3-4 people is a reasonable
-   ceiling for a browser-only mesh like this.
+   NOTE: this is more experimental than 1:1 calls. TURN relay
+   (see rtcConfig above) helps each pair connect across networks,
+   but a full mesh still means one upload stream per participant,
+   so 3-4 people is a reasonable ceiling for a browser-only mesh
+   like this.
    ========================================================= */
 function pairKeyFor(a, b) { return [a, b].sort().join('_'); }
 
@@ -2276,6 +2437,7 @@ function openGroupCallUI(type) {
   $('call-videos-1to1').style.display = 'none';
   $('call-videos-grid').style.display = 'grid';
   $('call-videos-grid').innerHTML = '';
+  resetCallVolumeUI();
   micOn = true; camOn = type === 'video';
   $('toggle-mic-btn').classList.remove('active-off');
   $('toggle-cam-btn').classList.remove('active-off');
@@ -2314,6 +2476,7 @@ function addOrUpdateRemoteTile(uid, stream) {
     $('call-videos-grid').appendChild(tile);
   }
   tile.querySelector('video').srcObject = stream;
+  tile.querySelector('video').volume = callVolume;
 }
 
 function removeRemoteTile(uid) {
