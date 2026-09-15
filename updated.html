@@ -1609,11 +1609,14 @@ async function openGroupChat(groupId, group) {
   // Show a banner if a group call is already in progress.
   onValue(ref(db, `groupCalls/${groupId}/participants`), (snap) => {
     if (openChatId !== groupId || openChatKind !== 'group') return;
-    const hasParticipants = snap.exists() && Object.keys(snap.val()).length > 0;
+    const participants = snap.exists() ? snap.val() : {};
+    const hasParticipants = Object.keys(participants).length > 0;
     const banner = $('group-call-banner');
     if (hasParticipants && groupCallId !== groupId) {
       banner.style.display = 'flex';
-      $('join-group-call-btn').onclick = () => startGroupCall('video');
+      const anyParticipant = Object.values(participants)[0];
+      const callType = (anyParticipant && anyParticipant.type) || 'video';
+      $('join-group-call-btn').onclick = () => startGroupCall(callType);
     } else {
       banner.style.display = 'none';
     }
@@ -2355,6 +2358,7 @@ let callDocUnsub = null;
 
 // Group (mesh) calling
 let groupCallId = null;
+let groupCallSessionId = null; // fresh id per call session, see startGroupCall
 let groupPeerConnections = {}; // otherUid -> RTCPeerConnection
 let groupUnsubFns = [];        // list of unsubscribe fns to clean up on end
 
@@ -2576,6 +2580,22 @@ async function startGroupCall(type) {
   }
 
   groupCallId = groupId;
+
+  // Each fresh call gets its own signaling session id, and anyone joining
+  // an already-running call reuses it. Without this, the offer/answer/ICE
+  // candidates from a previous call in this group would still be sitting
+  // in the database under the same path and get picked up immediately by
+  // the next call — which is why a group call would connect the first
+  // time but then break on every call after that.
+  const existingParticipants = await get(ref(db, `groupCalls/${groupId}/participants`));
+  if (existingParticipants.exists() && Object.keys(existingParticipants.val()).length > 0) {
+    const sessionSnap = await get(ref(db, `groupCalls/${groupId}/sessionId`));
+    groupCallSessionId = sessionSnap.exists() ? sessionSnap.val() : String(Date.now());
+  } else {
+    groupCallSessionId = String(Date.now());
+  }
+  await set(ref(db, `groupCalls/${groupId}/sessionId`), groupCallSessionId);
+
   openGroupCallUI(type);
   addLocalTileToGrid(type);
 
@@ -2600,7 +2620,7 @@ async function connectToGroupPeer(groupId, otherUid) {
   const [a, b] = [currentUser.uid, otherUid].sort();
   const amA = currentUser.uid === a;
   const pairKey = `${a}_${b}`;
-  const peerPath = `groupCalls/${groupId}/peers/${pairKey}`;
+  const peerPath = `groupCalls/${groupId}/peers/${groupCallSessionId}/${pairKey}`;
   const myCandPath = amA ? `${peerPath}/candidatesA` : `${peerPath}/candidatesB`;
   const theirCandPath = amA ? `${peerPath}/candidatesB` : `${peerPath}/candidatesA`;
 
@@ -2699,6 +2719,18 @@ async function endGroupCall() {
   if (!groupCallId) return;
   const groupId = groupCallId;
   await remove(ref(db, `groupCalls/${groupId}/participants/${currentUser.uid}`)).catch(() => {});
+
+  // If that was the last participant, wipe the signaling data so the next
+  // call starts from a clean slate (belt-and-braces alongside the new
+  // session id generated in startGroupCall).
+  try {
+    const remaining = await get(ref(db, `groupCalls/${groupId}/participants`));
+    if (!remaining.exists() || Object.keys(remaining.val()).length === 0) {
+      await remove(ref(db, `groupCalls/${groupId}/peers`)).catch(() => {});
+      await remove(ref(db, `groupCalls/${groupId}/sessionId`)).catch(() => {});
+    }
+  } catch (e) {}
+
   Object.keys(groupPeerConnections).forEach(uid => teardownGroupPeer(uid));
   groupUnsubFns.forEach(fn => { try { fn(); } catch (e) {} });
   groupUnsubFns = [];
@@ -2708,6 +2740,7 @@ async function endGroupCall() {
   $('call-videos-grid').style.display = 'none';
   $('call-videos-1to1').style.display = 'flex';
   groupCallId = null;
+  groupCallSessionId = null;
 }
 
 /* =========================================================
