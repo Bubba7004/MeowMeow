@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-900 text-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YukiOS Web Loader & Sandbox</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    .font-mono { font-family: 'Fira Code', monospace; }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+  </style>
+</head>
+<body class="h-full flex flex-col overflow-hidden select-none">
+
+  <!-- Local File Protocol Warning Banner -->
+  <div id="fileWarningBanner" class="hidden bg-amber-500/10 border-b border-amber-500/30 px-4 py-2 text-amber-300 text-xs flex items-center justify-between shrink-0">
+    <div class="flex items-center space-x-2">
+      <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-400"></i>
+      <span><strong>Local File Detected (file://):</strong> Browsers block local CORS requests. For optimal performance, run a local web server (e.g. <code>python3 -m http.server</code> or <code>npx serve</code>).</span>
+    </div>
+    <button onclick="document.getElementById('fileWarningBanner').remove()" class="text-amber-400 hover:text-amber-200 text-sm font-bold ml-4">&times;</button>
+  </div>
+
+  <header class="bg-slate-950 border-b border-slate-800 px-4 py-3 flex flex-wrap items-center justify-between gap-4 shrink-0 shadow-lg">
+    <div class="flex items-center space-x-3">
+      <div class="p-2 bg-indigo-600/20 border border-indigo-500/30 rounded-xl text-indigo-400">
+        <i data-lucide="monitor" class="w-6 h-6"></i>
+      </div>
+      <div>
+        <h1 class="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">
+          YukiOS Sandbox Loader
+        </h1>
+        <p class="text-xs text-slate-400">Fetch, sanitize module scripts, & execute in about:blank</p>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="flex items-center flex-wrap gap-2">
+      <button id="btnFetch" onclick="loadOS()" class="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-xs font-semibold rounded-lg transition duration-200 flex items-center space-x-1.5 shadow-md shadow-indigo-600/20">
+        <i data-lucide="refresh-cw" class="w-4 h-4" id="refreshIcon"></i>
+        <span>Fetch & Run</span>
+      </button>
+
+      <button id="btnLaunchNew" onclick="openInNewTab()" class="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 active:scale-95 border border-slate-700 text-slate-200 text-xs font-semibold rounded-lg transition duration-200 flex items-center space-x-1.5">
+        <i data-lucide="external-link" class="w-4 h-4"></i>
+        <span>Popout Window</span>
+      </button>
+
+      <div class="h-5 w-px bg-slate-800 mx-1"></div>
+
+      <div class="bg-slate-900 border border-slate-800 p-1 rounded-lg flex text-xs">
+        <button id="tabBtnPreview" onclick="switchTab('preview')" class="px-3 py-1 rounded-md text-indigo-400 font-medium bg-slate-800 transition">
+          Preview
+        </button>
+        <button id="tabBtnSource" onclick="switchTab('source')" class="px-3 py-1 rounded-md text-slate-400 font-medium hover:text-slate-200 transition">
+          Sanitized HTML
+        </button>
+      </div>
+
+      <button id="btnFullscreen" onclick="toggleFullscreen()" class="p-2 hover:bg-slate-800 text-slate-400 hover:text-slate-200 rounded-lg transition">
+        <i data-lucide="maximize-2" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <div class="bg-slate-900/90 border-b border-slate-800/80 px-4 py-2 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-slate-400 shrink-0">
+    <div class="flex items-center space-x-2 w-full md:w-auto">
+      <span class="font-semibold text-slate-300 flex items-center gap-1">
+        <i data-lucide="link-2" class="w-3.5 h-3.5 text-indigo-400"></i> Source:
+      </span>
+      <input id="inputUrl" type="text" value="https://cdn.jsdelivr.net/gh/Reeyuki/YukiOS@main/webos-desktop/index.html" class="w-full md:w-[480px] bg-slate-950 border border-slate-800 rounded px-2.5 py-1 text-slate-300 font-mono text-[11px] focus:outline-none focus:border-indigo-500 transition">
+    </div>
+
+    <div class="flex items-center gap-4 text-slate-400 text-[11px] w-full md:w-auto justify-end">
+      <div class="flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span id="statusText">Ready</span>
+      </div>
+      <!-- Fixed: Replaced removed Lucide github icon with an inline SVG -->
+      <a href="https://github.com/Reeyuki/YukiOS" target="_blank" class="hover:text-indigo-400 transition flex items-center gap-1">
+        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+          <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+        </svg>
+        <span>GitHub Repo</span>
+      </a>
+    </div>
+  </div>
+
+  <main class="flex-1 relative overflow-hidden bg-slate-950">
+    <div id="loaderOverlay" class="absolute inset-0 z-20 bg-slate-950/90 backdrop-blur-sm flex flex-col items-center justify-center space-y-4 transition-opacity duration-300 hidden">
+      <div class="w-10 h-10 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></div>
+      <p id="loaderMessage" class="text-sm font-medium text-slate-300">Fetching & parsing source code...</p>
+    </div>
+
+    <div id="previewContainer" class="w-full h-full relative">
+      <iframe id="targetFrame" src="about:blank" class="w-full h-full border-0 bg-white" title="YukiOS Viewport"></iframe>
+    </div>
+
+    <div id="sourceContainer" class="w-full h-full hidden flex-col bg-slate-950 p-4">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-semibold text-slate-400 flex items-center gap-1.5">
+          <i data-lucide="code" class="w-4 h-4 text-indigo-400"></i> Sanitized DOM Source
+        </span>
+        <button onclick="copySourceCode()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded border border-slate-700 transition flex items-center gap-1">
+          <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+          <span>Copy HTML</span>
+        </button>
+      </div>
+      <textarea id="sourceCode" readonly class="w-full h-full bg-slate-900 border border-slate-800 text-indigo-300 font-mono text-xs p-3 rounded-lg focus:outline-none resize-none leading-relaxed"></textarea>
+    </div>
+  </main>
+
+  <div id="toast" class="fixed bottom-4 right-4 bg-slate-800 border border-slate-700 text-slate-200 px-4 py-2.5 rounded-xl shadow-2xl transition-all duration-300 opacity-0 translate-y-4 pointer-events-none flex items-center space-x-2 text-xs z-50">
+    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400" id="toastIcon"></i>
+    <span id="toastText">Action completed successfully</span>
+  </div>
+
+  <script>
+    let processedHTML = '';
+    const DEFAULT_URL = "https://cdn.jsdelivr.net/gh/Reeyuki/YukiOS@main/webos-desktop/index.html";
+    const BASE_RESOURCES_URL = "https://cdn.jsdelivr.net/gh/Reeyuki/YukiOS@main/webos-desktop/";
+
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+
+      // Show warning banner if running via file:// protocol
+      if (window.location.protocol === 'file:') {
+        const warning = document.getElementById('fileWarningBanner');
+        if (warning) warning.classList.remove('hidden');
+      }
+
+      loadOS();
+    });
+
+    /**
+     * Parse HTML, convert invalid CSS script modules to stylesheets,
+     * remove CORS-blocked local webmanifests & Cloudflare beacon scripts.
+     */
+    function sanitizeAndRewriteHTML(rawHtml, baseUrl) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(rawHtml, 'text/html');
+
+      // 1. Inject <base> tag so all relative paths resolve to jsDelivr CDN
+      let baseTag = doc.querySelector('base');
+      if (!baseTag) {
+        baseTag = doc.createElement('base');
+        if (doc.head) {
+          doc.head.insertBefore(baseTag, doc.head.firstChild);
+        } else {
+          const head = doc.createElement('head');
+          head.appendChild(baseTag);
+          doc.documentElement.insertBefore(head, doc.documentElement.firstChild);
+        }
+      }
+      baseTag.href = baseUrl;
+
+      // 2. Fix script tags importing static assets as module scripts
+      doc.querySelectorAll('script').forEach(el => {
+        const src = el.getAttribute('src');
+        if (src) {
+          const lowerSrc = src.toLowerCase();
+
+          // Remove telemetry/analytics scripts that fail CORS under null/file origins
+          if (lowerSrc.includes('cloudflareinsights') || lowerSrc.includes('beacon.min.js')) {
+            el.remove();
+            return;
+          }
+
+          const resolved = resolveUrl(src, baseUrl);
+
+          // Convert CSS scripts (<script type="module" src="...css">) into <link rel="stylesheet">
+          if (lowerSrc.endsWith('.css') || lowerSrc.includes('.css?')) {
+            const link = doc.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = resolved;
+            el.parentNode.replaceChild(link, el);
+            return;
+          }
+
+          // Remove static image/asset module imports
+          if (/\.(png|jpg|jpeg|svg|gif|webp|ico)($|\?)/i.test(lowerSrc)) {
+            el.remove();
+            return;
+          }
+
+          el.setAttribute('src', resolved);
+        }
+      });
+
+      // 3. Remove webmanifest & image preload tags that trigger CORS/load warnings
+      doc.querySelectorAll('link').forEach(el => {
+        const rel = (el.getAttribute('rel') || '').toLowerCase();
+        const href = el.getAttribute('href') || '';
+
+        if (rel === 'manifest' || href.endsWith('manifest.webmanifest')) {
+          el.remove();
+          return;
+        }
+
+        if (rel === 'preload' && /\.(png|jpg|jpeg|svg|gif|webp)($|\?)/i.test(href)) {
+          el.remove();
+          return;
+        }
+
+        if (href && !isAbsoluteOrData(href)) {
+          el.setAttribute('href', resolveUrl(href, baseUrl));
+        }
+      });
+
+      // 4. Resolve image / source / anchor tags
+      const resolveAttr = (selector, attr) => {
+        doc.querySelectorAll(selector).forEach(el => {
+          const val = el.getAttribute(attr);
+          if (val && !isAbsoluteOrData(val)) {
+            el.setAttribute(attr, resolveUrl(val, baseUrl));
+          }
+        });
+      };
+
+      resolveAttr('img', 'src');
+      resolveAttr('source', 'src');
+      resolveAttr('a', 'href');
+
+      return '<!DOCTYPE html>\n' + doc.documentElement.outerHTML;
+    }
+
+    function isAbsoluteOrData(val) {
+      return val.startsWith('http://') || val.startsWith('https://') || val.startsWith('//') || val.startsWith('data:') || val.startsWith('#');
+    }
+
+    function resolveUrl(relative, base) {
+      try {
+        return new URL(relative, base).href;
+      } catch (e) {
+        return relative;
+      }
+    }
+
+    async function loadOS() {
+      const urlInput = document.getElementById('inputUrl').value.trim() || DEFAULT_URL;
+      const refreshIcon = document.getElementById('refreshIcon');
+      const loaderOverlay = document.getElementById('loaderOverlay');
+      const statusText = document.getElementById('statusText');
+
+      const lastSlashIndex = urlInput.lastIndexOf('/');
+      const calculatedBaseUrl = lastSlashIndex !== -1 ? urlInput.substring(0, lastSlashIndex + 1) : BASE_RESOURCES_URL;
+
+      refreshIcon.classList.add('animate-spin');
+      loaderOverlay.classList.remove('hidden');
+      statusText.innerText = 'Fetching...';
+
+      try {
+        const response = await fetch(urlInput);
+        if (!response.ok) {
+          throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
+        }
+
+        const rawText = await response.text();
+        processedHTML = sanitizeAndRewriteHTML(rawText, calculatedBaseUrl);
+
+        document.getElementById('sourceCode').value = processedHTML;
+        writeToFrame(processedHTML);
+
+        statusText.innerText = 'Online & Loaded';
+        showToast('YukiOS successfully injected into about:blank');
+      } catch (err) {
+        console.error('Error fetching YukiOS:', err);
+        statusText.innerText = 'Load Failed';
+        showToast('Error fetching page: ' + err.message, true);
+        
+        const frame = document.getElementById('targetFrame');
+        const frameDoc = frame.contentDocument || frame.contentWindow.document;
+        frameDoc.open();
+        frameDoc.write(`
+          <div style="font-family:sans-serif; padding:40px; text-align:center; color:#e11d48;">
+            <h2>Failed to load resource</h2>
+            <p style="color:#64748b;">${err.message}</p>
+          </div>
+        `);
+        frameDoc.close();
+      } finally {
+        refreshIcon.classList.remove('animate-spin');
+        loaderOverlay.classList.add('hidden');
+      }
+    }
+
+    function writeToFrame(htmlContent) {
+      const frame = document.getElementById('targetFrame');
+      const frameDoc = frame.contentDocument || frame.contentWindow.document;
+      frameDoc.open('text/html', 'replace');
+      frameDoc.write(htmlContent);
+      frameDoc.close();
+    }
+
+    function openInNewTab() {
+      if (!processedHTML) {
+        showToast('Please fetch the application content first!', true);
+        return;
+      }
+
+      const newWindow = window.open('about:blank', '_blank');
+      if (newWindow) {
+        newWindow.document.open();
+        newWindow.document.write(processedHTML);
+        newWindow.document.close();
+        showToast('Launched YukiOS in a new window (about:blank)');
+      } else {
+        showToast('Pop-up blocked! Allow pop-ups to open in a new window.', true);
+      }
+    }
+
+    function switchTab(tabName) {
+      const previewContainer = document.getElementById('previewContainer');
+      const sourceContainer = document.getElementById('sourceContainer');
+      const tabBtnPreview = document.getElementById('tabBtnPreview');
+      const tabBtnSource = document.getElementById('tabBtnSource');
+
+      if (tabName === 'preview') {
+        previewContainer.classList.remove('hidden');
+        sourceContainer.classList.add('hidden');
+        sourceContainer.classList.remove('flex');
+        
+        tabBtnPreview.className = "px-3 py-1 rounded-md text-indigo-400 font-medium bg-slate-800 transition";
+        tabBtnSource.className = "px-3 py-1 rounded-md text-slate-400 font-medium hover:text-slate-200 transition";
+      } else {
+        previewContainer.classList.add('hidden');
+        sourceContainer.classList.remove('hidden');
+        sourceContainer.classList.add('flex');
+
+        tabBtnSource.className = "px-3 py-1 rounded-md text-indigo-400 font-medium bg-slate-800 transition";
+        tabBtnPreview.className = "px-3 py-1 rounded-md text-slate-400 font-medium hover:text-slate-200 transition";
+      }
+    }
+
+    function copySourceCode() {
+      const sourceArea = document.getElementById('sourceCode');
+      sourceArea.select();
+      document.execCommand('copy');
+      showToast('HTML copied to clipboard!');
+    }
+
+    function toggleFullscreen() {
+      const elem = document.getElementById('previewContainer');
+      if (!document.fullscreenElement) {
+        elem.requestFullscreen().catch(err => {
+          showToast(`Error enabling full-screen: ${err.message}`, true);
+        });
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    function showToast(message, isError = false) {
+      const toast = document.getElementById('toast');
+      const toastText = document.getElementById('toastText');
+      const toastIcon = document.getElementById('toastIcon');
+
+      toastText.innerText = message;
+      if (isError) {
+        toastIcon.setAttribute('data-lucide', 'alert-circle');
+        toastIcon.className = "w-4 h-4 text-rose-400";
+      } else {
+        toastIcon.setAttribute('data-lucide', 'check-circle-2');
+        toastIcon.className = "w-4 h-4 text-emerald-400";
+      }
+      lucide.createIcons();
+
+      toast.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+      toast.classList.add('opacity-100', 'translate-y-0');
+
+      setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+      }, 3500);
+    }
+  </script>
+</body>
+</html>
