@@ -1,0 +1,655 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" xmlns:c2pa="http://c2pa.org/manifest"><metadata><c2pa:manifest>AAAWkGp1bWIAAAAeanVtZGMycGEAEQAQgAAAqgA4m3EDYzJwYQAAABZqanVtYgAAAEdqdW1kYzJtYQARABCAAACqADibcQN1cm46YzJwYTozODk3NTFjOS05OGZiLTQ0YjctOWU0Mi00NjAxNDhjNDVkMzEAAAADf2p1bWIAAAApanVtZGMyYXMAEQAQgAAAqgA4m3EDYzJwYS5hc3NlcnRpb25zAAAAALxqdW1iAAAARGp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuaW5ncmVkaWVudC52MwAAAAAYYzJzaNYhsWenHJKsPVOBpSKy77EAAABwY2JvcqNscmVsYXRpb25zaGlwaHBhcmVudE9maWRjOmZvcm1hdG1pbWFnZS9zdmcreG1samluc3RhbmNlSUR4LHhtcDppaWQ6MGUyZjg0NmQtYzAyOC00M2EyLTgzN2EtODdlM2VmZDRhMGJlAAABzmp1bWIAAABBanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5hY3Rpb25zLnYyAAAAABhjMnNo+nlZwWp6V67zOxrARxraxAAAAYVjYm9yoWdhY3Rpb25zgqJmYWN0aW9ua2MycGEub3BlbmVkanBhcmFtZXRlcnOha2luZ3JlZGllbnRzgaJjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFggMEguKjuEqQ4xRt3mmsQUFZFbvtEKtXFYTQDc3ZC14uCkZmFjdGlvbngdY29tLmFudGhyb3BpYy5jbGF1ZGUucHJvdmlkZWRtc29mdHdhcmVBZ2VudKFkbmFtZWZDbGF1ZGVqcGFyYW1ldGVyc6F4H2NvbS5hbnRocm9waWMub3JpZ2luLWNvbmZpZGVuY2VndW5rbm93bmtkZXNjcmlwdGlvbnhmQ2xhdWRlIHByb3ZpZGVkIHRoaXMgZmlsZSBhdCB0aGUgcmVxdWVzdCBvZiBhIHVzZXIgYW5kIG1heSBoYXZlIGNyZWF0ZWQgb3IgbW9kaWZpZWQgdGhlIGZpbGUgY29udGVudHMuAAAAxGp1bWIAAABAanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5oYXNoLmRhdGEAAAAAGGMyc2hqBX21jyGQaW224O7HrVBlAAAAfGNib3KlamV4Y2x1c2lvbnOBomVzdGFydBiCZmxlbmd0aBkeGGRuYW1lbmp1bWJmIG1hbmlmZXN0Y2FsZ2ZzaGEyNTZkaGFzaFgghpZrNlsruXpC5/ZF1i1d30UJBYJ/TDoTUoKqAdpIN5djcGFkSQAAAAAAAAAAAAAAAmRqdW1iAAAAJ2p1bWRjMmNsABEAEIAAAKoAOJtxA2MycGEuY2xhaW0udjIAAAACNWNib3Kmamluc3RhbmNlSUR4LHhtcDppaWQ6ZWQ5YWY2NTAtNDMyMC00MTMwLWE0M2ItYmRlMGE3ZDFiMGY0dGNsYWltX2dlbmVyYXRvcl9pbmZvo2RuYW1lc0FudGhyb3BpYyBDbGF1ZGUuYWlndmVyc2lvbmUxLjAuMHdvcmcuY29udGVudGF1dGguYzJwYV9yc2YwLjkwLjBpc2lnbmF0dXJleE1zZWxmI2p1bWJmPS9jMnBhL3VybjpjMnBhOjM4OTc1MWM5LTk4ZmItNDRiNy05ZTQyLTQ2MDE0OGM0NWQzMS9jMnBhLnNpZ25hdHVyZXJjcmVhdGVkX2Fzc2VydGlvbnOComN1cmx4KnNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuYWN0aW9ucy52MmRoYXNoWCCNaVEj4xUbyudIWGlXLROkiSlPHkxcAw+jldFCnJ0MhqJjdXJseClzZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmhhc2guZGF0YWRoYXNoWCCtjmb4AC8KDAJTWE+zdOG6tVbIFbeBWuAxCwbZCH+lVXNnYXRoZXJlZF9hc3NlcnRpb25zgaJjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFggMEguKjuEqQ4xRt3mmsQUFZFbvtEKtXFYTQDc3ZC14uBjYWxnZnNoYTI1NgAAEDhqdW1iAAAAKGp1bWRjMmNzABEAEIAAAKoAOJtxA2MycGEuc2lnbmF0dXJlAAAAEAhjYm9y0oRZAhKiASYYIVkCCjCCAgYwggGNoAMCAQICFEDloAruwjnQvriD+gZCBT1nVRMAMAoGCCqGSM49BAMDMEkxFzAVBgNVBAoTDkFudGhyb3BpYywgUEJDMS4wLAYDVQQDEyVBbnRocm9waWMgQ29udGVudCBDcmVkZW50aWFscyBSb290IENBMB4XDTI2MDgwNzE4NDM1NloXDTI4MDgwNjE5NDM1NlowRDEXMBUGA1UEChMOQW50aHJvcGljLCBQQkMxKTAnBgNVBAMTIEFudGhyb3BpYyBDbGF1ZGUgQ29udGVudCBTaWduaW5nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEmHoKa8tQGAUU1TS9QqU5W0Tp2N3XsvlK7BfQt6YWKwEzd2R3/dzKPEUDdCjlLjp9fT+KFjRVnuZ9v0oXvTe3k6NYMFYwDgYDVR0PAQH/BAQDAgeAMBUGA1UdJQQOMAwGCisGAQQBg+heAgEwDAYDVR0TAQH/BAIwADAfBgNVHSMEGDAWgBTOUeIEgU5kWyP448TPmj6cwddcwjAKBggqhkjOPQQDAwNnADBkAjAxcx0UngF60stVjs5G4T2eiptsBk5mf9oCtfJPAUBl8qs/PEXa8+gk1/X5QJ2DVcYCMHBfXN31YapiSqYvlIWrDVDJKOvXMl+kkz37Wt0PBI8sw486Mq6JeOhT+lRR4b1HCaFjcGFkWQ2eAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA9lhAAILssU3i7TpAcWP9ZWczENWjZ4qWo7S5xiRCHyzysZCieZGW5U7Oa6OhwVUBiZBSnFWWSNCmK34TrwaMHD+B9A==</c2pa:manifest></metadata>
+  <rect width="400" height="260" rx="16" fill="#1f3a5f"/>
+  <circle cx="340" cy="50" r="28" fill="#f2b84b"/>
+<foreignObject x="0" y="0" width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;overflow:auto;"><div class="page-root min-h-screen flex flex-col justify-between relative selection:bg-brand-500 selection:text-white" style="box-sizing:border-box;min-height:100%;padding:8px;">
+    
+    
+    
+
+    <!-- Google Fonts & FontAwesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f3ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            accent: '#a855f7',
+                            cyan: '#06b6d4',
+                            emerald: '#10b981'
+                        },
+                        dark: {
+                            bg: '#0a0d14',
+                            card: '#121824',
+                            border: 'rgba(255, 255, 255, 0.08)'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace']
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'glow': 'glow 3s ease-in-out infinite alternate',
+                    },
+                    keyframes: {
+                        glow: {
+                            '0%': { 'box-shadow': '0 0 15px rgba(99, 102, 241, 0.3)' },
+                            '100%': { 'box-shadow': '0 0 35px rgba(168, 85, 247, 0.6)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .page-root {
+            background-color: #0a0d14;
+            color: #f3f4f6;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+        }
+
+        #bgCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .glass-card {
+            background: rgba(18, 24, 36, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .glass-input {
+            background: rgba(10, 13, 20, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, #a855f7 0%, #6366f1 50%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn-glow {
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-glow::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 0.8rem;
+            background: linear-gradient(135deg, #a855f7, #6366f1, #06b6d4);
+            z-index: -1;
+            opacity: 0;
+            filter: blur(12px);
+            transition: opacity 0.3s ease;
+        }
+        .btn-glow:hover::before {
+            opacity: 0.8;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(10, 13, 20, 0.5);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, 0.3);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(99, 102, 241, 0.6);
+        }
+    </style>
+
+
+    <canvas id="bgCanvas"></canvas>
+
+    <header class="relative z-10 w-full max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-xl bg-gradient-to-br from-brand-accent via-brand-500 to-brand-cyan p-[1px] flex items-center justify-center shadow-lg shadow-brand-500/20">
+                <div class="w-full h-full bg-dark-card rounded-[11px] flex items-center justify-center">
+                    <i class="fa-solid fa-ghost text-brand-accent text-lg"></i>
+                </div>
+            </div>
+            <div>
+                <h1 class="font-bold text-xl tracking-wider text-white">DAKNUX</h1>
+                <p class="text-xs text-gray-400 font-mono">STEALTH LAUNCHER v2.4</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                <span>SYSTEM ONLINE</span>
+            </div>
+            <button id="toggleSourceBtn" class="px-4 py-2 rounded-xl text-xs font-medium font-mono text-gray-300 hover:text-white bg-white/5 border border-white/10 hover:bg-white/10 transition-all flex items-center gap-2">
+                <i class="fa-solid fa-code"></i>
+                <span id="sourceBtnText">View Payload</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="relative z-10 my-auto px-4 py-8 max-w-4xl w-full mx-auto">
+        <div class="glass-card rounded-3xl p-8 sm:p-12 relative overflow-hidden transition-all duration-300">
+            <div class="absolute -top-24 -left-24 w-72 h-72 bg-brand-accent/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-24 -right-24 w-72 h-72 bg-brand-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="relative z-10 flex flex-col items-center text-center">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-500/10 border border-brand-500/30 text-brand-500 text-xs font-semibold uppercase tracking-widest mb-6">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    Cloaked Container Engine
+                </div>
+
+                <h2 class="text-4xl sm:text-6xl font-extrabold tracking-tight text-white mb-4">
+                    Launch <span class="text-gradient">DAKNUX</span> Portal
+                </h2>
+                <p class="text-gray-400 text-base sm:text-lg max-w-xl mb-8 leading-relaxed">
+                    Instantly load the full gaming interface inside an isolated <code class="text-brand-cyan font-mono px-1.5 py-0.5 rounded bg-brand-cyan/10">about:blank</code> browser window tab masked as Google Drive.
+                </p>
+
+                <button type="button" id="openButton" class="btn-glow w-full sm:w-auto px-10 py-5 rounded-2xl bg-gradient-to-r from-brand-accent via-brand-500 to-brand-cyan text-white font-bold text-lg shadow-2xl flex items-center justify-center gap-3 group transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer">
+                    <i class="fa-solid fa-rocket text-xl group-hover:rotate-12 transition-transform"></i>
+                    <span>Launch in Stealth Tab</span>
+                </button>
+
+                <div id="status" class="mt-6 text-sm font-mono transition-all duration-200 min-h-[24px] flex items-center justify-center gap-2 text-gray-400">
+                    <i class="fa-solid fa-circle-info text-brand-500"></i>
+                    <span>Ready to initialize session.</span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full mt-12 pt-8 border-t border-white/5">
+                    <div class="p-4 rounded-2xl bg-white/[0.02] border border-white/5 flex flex-col items-center text-center hover:bg-white/[0.04] transition-colors">
+                        <div class="w-10 h-10 rounded-xl bg-brand-cyan/10 border border-brand-cyan/20 text-brand-cyan flex items-center justify-center mb-3">
+                            <i class="fa-solid fa-user-secret"></i>
+                        </div>
+                        <h3 class="font-bold text-white text-sm">about:blank Cloak</h3>
+                        <p class="text-xs text-gray-400 mt-1">Leaves no URL history in browser logs</p>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-white/[0.02] border border-white/5 flex flex-col items-center text-center hover:bg-white/[0.04] transition-colors">
+                        <div class="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/20 text-brand-500 flex items-center justify-center mb-3">
+                            <i class="fa-solid fa-link"></i>
+                        </div>
+                        <h3 class="font-bold text-white text-sm">Auto Base Injector</h3>
+                        <p class="text-xs text-gray-400 mt-1">Resolves relative assets from origin</p>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-white/[0.02] border border-white/5 flex flex-col items-center text-center hover:bg-white/[0.04] transition-colors">
+                        <div class="w-10 h-10 rounded-xl bg-brand-accent/10 border border-brand-accent/20 text-brand-accent flex items-center justify-center mb-3">
+                            <i class="fa-solid fa-masks-theater"></i>
+                        </div>
+                        <h3 class="font-bold text-white text-sm">Drive Masquerade</h3>
+                        <p class="text-xs text-gray-400 mt-1">Preset Google Drive tab icon &amp; name</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="sourceViewerPanel" class="hidden mt-6 glass-card rounded-3xl p-6 transition-all duration-300">
+            <div class="flex items-center justify-between mb-4 pb-3 border-b border-white/5">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-terminal text-brand-cyan text-sm"></i>
+                    <h3 class="text-sm font-bold text-white font-mono">Payload Source Inspector</h3>
+                </div>
+                <button id="copySourceBtn" class="text-xs font-mono text-gray-400 hover:text-white px-3 py-1 rounded bg-white/5 hover:bg-white/10 border border-white/10 transition-colors flex items-center gap-1.5">
+                    <i class="fa-regular fa-copy"></i>
+                    <span>Copy Raw</span>
+                </button>
+            </div>
+            <p class="text-xs text-gray-400 mb-3">
+                This hidden HTML source string will be dynamically written into the new empty window instance.
+            </p>
+            <textarea id="sourcePage" class="w-full h-64 bg-black/60 border border-white/10 rounded-xl p-4 font-mono text-xs text-gray-300 focus:outline-none focus:border-brand-500 resize-y leading-relaxed selection:bg-brand-500 selection:text-white" readonly="">&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+&lt;link rel="icon" type="image/png" href="https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5f/Google_Drive_icon_%282026%29.svg/1280px-Google_Drive_icon_%282026%29.svg.png"&gt;
+&lt;link rel="icon" type="image/png" sizes="32x32" href="https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5f/Google_Drive_icon_%282026%29.svg/1280px-Google_Drive_icon_%282026%29.svg.png"&gt;
+&lt;link rel="apple-touch-icon" href="https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5f/Google_Drive_icon_%282026%29.svg/1280px-Google_Drive_icon_%282026%29.svg.png"&gt;
+&lt;script&gt;
+    window.addEventListener('beforeunload', function (event) {
+        event.preventDefault();
+        event.returnValue = '';
+        return 'Are you sure you want to leave? Any unsaved changes will be lost.';
+    });
+&lt;/script&gt;
+&lt;script async src="https://www.googletagmanager.com/gtag/js?id=G-G6KD91N6Q1"&gt;&lt;/script&gt;
+&lt;script&gt;
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-G6KD91N6Q1');
+&lt;/script&gt;
+&lt;meta charset="UTF-8"&gt;
+&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+&lt;title&gt;Google Drive&lt;/title&gt;
+&lt;meta name="title" content="DAKNUX"&gt;
+&lt;meta name="description" content="Play unbl*cked games like Deltarune, Sprunked, and Sonic rom hacks on DAKNUX. Fast, free, no downloads—perfect for school or home."&gt;
+
+&lt;!-- Tailwind CSS &amp; Fonts --&gt;
+&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;
+&lt;link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"&gt;
+&lt;style&gt;
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap');
+    
+    body { 
+        background-color: #0a0d14; 
+        color: #f3f4f6; 
+        font-family: 'Plus Jakarta Sans', sans-serif; 
+        overflow-x: hidden;
+    }
+    
+    .glass { 
+        background: rgba(18, 24, 36, 0.75); 
+        backdrop-filter: blur(16px); 
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255,255,255,0.08); 
+    }
+    .glass-input { 
+        background: rgba(10, 13, 20, 0.6); 
+        border: 1px solid rgba(255,255,255,0.1); 
+        color: #fff;
+        transition: all 0.2s;
+    }
+    .glass-input:focus { 
+        outline: none; 
+        border-color: #6366f1; 
+        box-shadow: 0 0 12px rgba(99,102,241,0.2); 
+    }
+    
+    #zoneViewer { 
+        display: none; 
+        position: fixed; 
+        inset: 0; 
+        z-index: 100; 
+        flex-direction: column; 
+        background: #0a0d14; 
+    }
+    #zoneViewer[style*="display: block"], #zoneViewer.active { display: flex !important; }
+    
+    #popupOverlay { 
+        display: none; 
+        position: fixed; 
+        inset: 0; 
+        z-index: 110; 
+        background: rgba(0,0,0,0.85); 
+        backdrop-filter: blur(8px); 
+        align-items: center; 
+        justify-content: center; 
+    }
+    #popupOverlay[style*="display: block"], #popupOverlay.active { display: flex !important; }
+    
+    #container, #featuredZones { 
+        display: grid; 
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); 
+        gap: 1.5rem; 
+        padding: 1rem 0; 
+    }
+    
+    #container &gt; div, #featuredZones &gt; div, .zone-card {
+        background: rgba(255,255,255,0.03); 
+        border: 1px solid rgba(255,255,255,0.05); 
+        border-radius: 1rem; 
+        padding: 1.25rem;
+        transition: all 0.3s ease; 
+        display: flex; 
+        flex-direction: column; 
+        gap: 0.75rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+    #container &gt; div:hover, #featuredZones &gt; div:hover, .zone-card:hover {
+        transform: translateY(-4px); 
+        border-color: rgba(168, 85, 247, 0.5); 
+        background: rgba(255,255,255,0.06);
+        box-shadow: 0 10px 30px rgba(99, 102, 241, 0.15);
+    }
+    #container img, #featuredZones img { 
+        border-radius: 0.75rem; 
+        width: 100%; 
+        object-fit: cover; 
+        aspect-ratio: 16/9; 
+        background: rgba(0,0,0,0.5);
+    }
+    
+    summary::-webkit-details-marker { display: none; }
+    summary { list-style: none; }
+    
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0a0d14; }
+    ::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.3); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(99,102,241,0.6); }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body class="min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white"&gt;
+    
+    &lt;header class="sticky top-0 z-40 glass border-b border-white/10 px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4 shadow-2xl"&gt;
+        &lt;div class="logo shrink-0 flex items-center gap-3"&gt;
+            &lt;div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-cyan-500 p-[1px]"&gt;
+                &lt;div class="w-full h-full bg-[#0a0d14] rounded-[11px] flex items-center justify-center"&gt;
+                    &lt;i class="fa-solid fa-ghost text-purple-400"&gt;&lt;/i&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+            &lt;img src="https://rawcdn.githack.com/daknux/assets/ef878fa0dfe203e2b83779e68370d27b6e91ab52/DAKNUX-LOGO-SITE.png" alt="DAKNUX" class="h-8 w-auto"&gt;
+        &lt;/div&gt;
+        
+        &lt;div class="search-container flex-1 max-w-2xl flex flex-wrap items-center gap-3 w-full"&gt;
+            &lt;div class="relative flex-1 min-w-[200px]"&gt;
+                &lt;i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"&gt;&lt;/i&gt;
+                &lt;input type="text" id="searchBar" placeholder="Search stealth zones..." oninput="filterZones()" class="w-full glass-input rounded-xl pl-10 pr-4 py-2.5 text-sm"&gt;
+            &lt;/div&gt;
+            &lt;select id="sortOptions" onchange="sortZones()" class="glass-input rounded-xl px-4 py-2.5 text-sm cursor-pointer hover:bg-white/5"&gt;
+                &lt;option value="name"&gt;Name&lt;/option&gt;
+                &lt;option value="id"&gt;ID (Date)&lt;/option&gt;
+                &lt;option value="popular"&gt;Popular&lt;/option&gt;
+                &lt;option value="trendingDay"&gt;Trending (Day)&lt;/option&gt;
+                &lt;option value="trendingWeek"&gt;Trending (Week)&lt;/option&gt;
+                &lt;option value="trendingMonth"&gt;Trending (Month)&lt;/option&gt;
+            &lt;/select&gt;
+            &lt;select id="filterOptions" onchange="filterZones2()" class="glass-input rounded-xl px-4 py-2.5 text-sm cursor-pointer hover:bg-white/5"&gt;
+                &lt;option value="none"&gt;All Tags&lt;/option&gt;
+            &lt;/select&gt;
+        &lt;/div&gt;
+        
+        &lt;div class="control-buttons flex items-center gap-3 shrink-0 w-full md:w-auto justify-end"&gt;
+            &lt;button id="refresh" class="w-10 h-10 rounded-xl glass-input hover:bg-indigo-500/20 hover:text-indigo-400 hover:border-indigo-500/30 transition-all text-gray-400 flex items-center justify-center" title="Refresh Database" onclick="listZones()"&gt;
+                &lt;i class="fa-solid fa-arrows-rotate"&gt;&lt;/i&gt;
+            &lt;/button&gt;
+            &lt;button id="settings" class="w-10 h-10 rounded-xl glass-input hover:bg-indigo-500/20 hover:text-indigo-400 hover:border-indigo-500/30 transition-all text-gray-400 flex items-center justify-center" title="Engine Settings"&gt;
+                &lt;i class="fa-solid fa-sliders"&gt;&lt;/i&gt;
+            &lt;/button&gt;
+            &lt;button class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-500 via-indigo-500 to-cyan-500 text-white font-bold text-sm shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_25px_rgba(168,85,247,0.5)] transition-all flex items-center gap-2 hover:-translate-y-0.5" onclick="randomZone()"&gt;
+                &lt;i class="fa-solid fa-shuffle"&gt;&lt;/i&gt; Random
+            &lt;/button&gt;
+        &lt;/div&gt;
+    &lt;/header&gt;
+    
+    &lt;main class="flex-1 w-full max-w-7xl mx-auto px-6 py-10 relative"&gt;
+        &lt;div class="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none -z-10"&gt;&lt;/div&gt;
+        &lt;div class="absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none -z-10"&gt;&lt;/div&gt;
+        
+        &lt;div class="rainbow-container text-center mb-12"&gt;
+            &lt;h3 class="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-purple-400 via-indigo-400 to-cyan-400 text-transparent bg-clip-text inline-block tracking-tight" id="rainbowText"&gt;WELCOME TO DAKNUX&lt;/h3&gt;
+            &lt;div class="mt-3 text-sm text-gray-400 font-mono bg-white/5 inline-block px-4 py-1.5 rounded-full border border-white/10"&gt;
+                &lt;script src="https://cdn.jsdelivr.net/gh/daknux/assets@master/rng-quotes.js"&gt;&lt;/script&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+        
+        &lt;details id="featuredZonesWrapper" open class="mb-10 group bg-white/[0.02] border border-white/5 rounded-2xl p-6 transition-all hover:bg-white/[0.03]"&gt;
+            &lt;summary id="allZonesSummary" class="flex items-center gap-3 text-xl font-bold text-white cursor-pointer select-none pb-4 border-b border-white/10 hover:text-indigo-400 transition-colors"&gt;
+                &lt;div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30"&gt;
+                    &lt;i class="fa-solid fa-fire text-sm"&gt;&lt;/i&gt;
+                &lt;/div&gt;
+                Featured Zones
+                &lt;i class="fa-solid fa-chevron-down text-sm ml-auto group-open:rotate-180 transition-transform text-gray-500"&gt;&lt;/i&gt;
+            &lt;/summary&gt;
+            &lt;div id="featuredZones" class="zone-container mt-6"&gt;&lt;/div&gt;
+        &lt;/details&gt;
+        
+        &lt;details id="allZonesWrapper" open class="group bg-white/[0.02] border border-white/5 rounded-2xl p-6 transition-all hover:bg-white/[0.03]"&gt;
+            &lt;summary id="allSummary" class="flex items-center gap-3 text-xl font-bold text-white cursor-pointer select-none pb-4 border-b border-white/10 hover:text-cyan-400 transition-colors"&gt;
+                &lt;div class="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center border border-cyan-500/30"&gt;
+                    &lt;i class="fa-solid fa-gamepad text-sm"&gt;&lt;/i&gt;
+                &lt;/div&gt;
+                All Zones
+                &lt;i class="fa-solid fa-chevron-down text-sm ml-auto group-open:rotate-180 transition-transform text-gray-500"&gt;&lt;/i&gt;
+            &lt;/summary&gt;
+            &lt;div id="container" class="mt-6 text-gray-400 text-sm flex flex-col items-center justify-center py-16 gap-4"&gt;
+                &lt;i class="fa-solid fa-circle-notch fa-spin text-3xl text-indigo-500"&gt;&lt;/i&gt;
+                &lt;p class="font-mono"&gt;Establishing connection to database...&lt;/p&gt;
+            &lt;/div&gt;
+        &lt;/details&gt;
+    &lt;/main&gt;
+    
+    &lt;div id="zoneViewer"&gt;
+        &lt;div class="zone-header glass border-b border-white/10 px-6 py-4 flex items-center justify-between shadow-2xl z-20"&gt;
+            &lt;div class="zone-title flex items-center gap-4"&gt;
+                &lt;div class="w-10 h-10 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center border border-indigo-500/30"&gt;
+                    &lt;i class="fa-solid fa-play"&gt;&lt;/i&gt;
+                &lt;/div&gt;
+                &lt;div&gt;
+                    &lt;h2 id="zoneName" class="text-xl font-bold text-white tracking-wide leading-tight"&gt;zone&lt;/h2&gt;
+                    &lt;a id="zoneAuthor" href="#" target="_blank" class="text-xs text-gray-400 hover:text-indigo-400 font-mono transition-colors"&gt;by Author&lt;/a&gt;
+                &lt;/div&gt;
+                &lt;span id="zoneId" style="display: none;"&gt;&lt;/span&gt;
+                &lt;button class="ml-2 w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-gray-400 hover:text-cyan-400 transition-colors flex items-center justify-center" onclick="showZoneInfo()" title="Zone Information"&gt;
+                    &lt;i class="fa-solid fa-circle-info"&gt;&lt;/i&gt;
+                &lt;/button&gt;
+            &lt;/div&gt;
+            &lt;div class="zone-controls flex items-center gap-2"&gt;
+                &lt;button class="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-gray-300 hover:text-white transition-colors flex items-center gap-2" onclick="fullscreenZone()"&gt;
+                    &lt;i class="fa-solid fa-expand"&gt;&lt;/i&gt; &lt;span class="hidden sm:inline"&gt;Fullscreen&lt;/span&gt;
+                &lt;/button&gt;
+                &lt;button class="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-gray-300 hover:text-white transition-colors flex items-center gap-2 hidden md:flex" onclick="aboutBlank()"&gt;
+                    &lt;i class="fa-solid fa-arrow-up-right-from-square"&gt;&lt;/i&gt; &lt;span&gt;New Tab&lt;/span&gt;
+                &lt;/button&gt;
+                &lt;button class="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-gray-300 hover:text-white transition-colors flex items-center gap-2" onclick="downloadZone()"&gt;
+                    &lt;i class="fa-solid fa-download"&gt;&lt;/i&gt; &lt;span class="hidden sm:inline"&gt;Download&lt;/span&gt;
+                &lt;/button&gt;
+                &lt;button class="px-5 py-2 rounded-xl bg-red-500/20 hover:bg-red-500/40 border border-red-500/30 text-sm text-red-200 transition-colors flex items-center gap-2 ml-2" onclick="closeZone()"&gt;
+                    &lt;i class="fa-solid fa-xmark"&gt;&lt;/i&gt; &lt;span&gt;Close Session&lt;/span&gt;
+                &lt;/button&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;iframe id="zoneFrame" class="w-full flex-1 bg-[#05070a] border-none" allowfullscreen&gt;&lt;/iframe&gt;
+    &lt;/div&gt;
+    
+    &lt;div id="popupOverlay"&gt;
+        &lt;div class="popup glass max-w-lg w-full rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden border border-white/10 mx-4 transform transition-all scale-100"&gt;
+            &lt;div class="popup-header bg-white/[0.02] border-b border-white/10 px-6 py-4 flex items-center justify-between"&gt;
+                &lt;h3 id="popupTitle" class="text-lg font-bold text-white flex items-center gap-2"&gt;
+                    &lt;i class="fa-solid fa-bell text-indigo-400"&gt;&lt;/i&gt; Title
+                &lt;/h3&gt;
+                &lt;button id="popupClose" onclick="closePopup()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 text-gray-400 hover:text-white transition-colors bg-white/5 border border-white/10"&gt;
+                    &lt;i class="fa-solid fa-xmark"&gt;&lt;/i&gt;
+                &lt;/button&gt;
+            &lt;/div&gt;
+            &lt;div id="popupBody" class="p-6 text-gray-300 text-sm leading-relaxed max-h-[70vh] overflow-y-auto"&gt;
+                Content will be here
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    
+    &lt;footer class="glass border-t border-white/10 mt-auto py-8"&gt;
+        &lt;div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6"&gt;
+            &lt;div class="flex items-center gap-2 text-gray-500 text-xs font-mono"&gt;
+                &lt;i class="fa-solid fa-shield-halved text-indigo-500"&gt;&lt;/i&gt;
+                &lt;span&gt;DAKNUX // STEALTH ENGINE&lt;/span&gt;
+            &lt;/div&gt;
+            &lt;div class="flex flex-wrap items-center justify-center gap-6 text-xs text-gray-400 font-semibold tracking-wider"&gt;
+                &lt;a href="#" onclick="loadDisclaimer(); return false;" class="hover:text-indigo-400 transition-colors"&gt;CREDITS&lt;/a&gt;
+                &lt;a href="#" onclick="showContact(); return false;" class="hover:text-indigo-400 transition-colors"&gt;CONTACT&lt;/a&gt;
+                &lt;a href="#" onclick="loadPrivacy(); return false;" class="hover:text-indigo-400 transition-colors"&gt;PRIVACY&lt;/a&gt;
+                &lt;a href="javascript:saveData()" class="hover:text-indigo-400 transition-colors"&gt;EXPORT&lt;/a&gt;
+                &lt;a href="#" onclick="document.getElementById('importData').click(); return false;" class="hover:text-indigo-400 transition-colors flex items-center gap-1"&gt;
+                    &lt;i class="fa-solid fa-upload"&gt;&lt;/i&gt; IMPORT
+                &lt;/a&gt;
+                &lt;input type="file" id="importData" style="display: none;" onchange="loadData(event)"&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/footer&gt;
+    
+    &lt;script src="https://cdn.jsdelivr.net/gh/Bubba7004/MeowMeow@main/scrooge.js"&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+        </div>
+    </main>
+
+    <footer class="relative z-10 w-full max-w-7xl mx-auto px-6 py-6 text-center text-xs text-gray-500 font-mono">
+        <p>DAKNUX ENGINE • POWERED BY CLIENT-SIDE INJECTION</p>
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('bgCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        let particles = [];
+
+        function resizeCanvas() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 0.4;
+                this.vy = (Math.random() - 0.5) * 0.4;
+                this.radius = Math.random() * 1.5 + 0.5;
+                this.alpha = Math.random() * 0.5 + 0.2;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.x &lt; 0 || this.x &gt; width) this.vx *= -1;
+                if (this.y &lt; 0 || this.y &gt; height) this.vy *= -1;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(168, 85, 247, ${this.alpha})`;
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            const count = Math.floor((width * height) / 18000);
+            for (let i = 0; i &lt; count; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, width, height);
+
+            for (let i = 0; i &lt; particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+
+                for (let j = i + 1; j &lt; particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist &lt; 110) {
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.strokeStyle = `rgba(99, 102, 241, ${0.12 * (1 - dist / 110)})`;
+                        ctx.lineWidth = 0.6;
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            requestAnimationFrame(animateParticles);
+        }
+
+        window.addEventListener('resize', () =&gt; {
+            resizeCanvas();
+            initParticles();
+        });
+
+        resizeCanvas();
+        initParticles();
+        animateParticles();
+
+        const openBtn = document.getElementById("openButton");
+        const statusEl = document.getElementById("status");
+        const toggleSourceBtn = document.getElementById("toggleSourceBtn");
+        const sourceViewerPanel = document.getElementById("sourceViewerPanel");
+        const sourceBtnText = document.getElementById("sourceBtnText");
+        const copySourceBtn = document.getElementById("copySourceBtn");
+        const sourceTextArea = document.getElementById("sourcePage");
+
+        toggleSourceBtn.addEventListener("click", () =&gt; {
+            const isHidden = sourceViewerPanel.classList.contains("hidden");
+            if (isHidden) {
+                sourceViewerPanel.classList.remove("hidden");
+                sourceBtnText.textContent = "Hide Payload";
+            } else {
+                sourceViewerPanel.classList.add("hidden");
+                sourceBtnText.textContent = "View Payload";
+            }
+        });
+
+        copySourceBtn.addEventListener("click", () =&gt; {
+            sourceTextArea.select();
+            document.execCommand('copy');
+            copySourceBtn.innerHTML = `&lt;i class="fa-solid fa-check text-emerald-400"&gt;&lt;/i&gt;&lt;span&gt;Copied!&lt;/span&gt;`;
+            setTimeout(() =&gt; {
+                copySourceBtn.innerHTML = `&lt;i class="fa-regular fa-copy"&gt;&lt;/i&gt;&lt;span&gt;Copy Raw&lt;/span&gt;`;
+            }, 2000);
+        });
+
+        openBtn.addEventListener("click", function () {
+            statusEl.innerHTML = `&lt;i class="fa-solid fa-spinner animate-spin text-brand-cyan"&gt;&lt;/i&gt;&lt;span class="text-brand-cyan"&gt;Launching stealth tab...&lt;/span&gt;`;
+
+            const newTab = window.open("about:blank", "_blank");
+
+            if (!newTab) {
+                statusEl.innerHTML = `&lt;i class="fa-solid fa-triangle-exclamation text-amber-400"&gt;&lt;/i&gt;&lt;span class="text-amber-400"&gt;Pop-up blocked! Allow pop-ups for this domain in Chrome settings.&lt;/span&gt;`;
+                return;
+            }
+
+            let suppliedHtml = sourceTextArea.value;
+
+            // Inject History API override alongside base tag to prevent URL parameters
+            const injection = `&lt;head&gt;
+&lt;script&gt;
+    history.pushState = function() {};
+    history.replaceState = function() {};
+&lt;\/script&gt;
+&lt;base href="https://daknux.github.io/"&gt;`;
+
+            suppliedHtml = suppliedHtml.replace("&lt;head&gt;", injection);
+
+            try {
+                newTab.document.open();
+                newTab.document.write(suppliedHtml);
+                newTab.document.close();
+                newTab.focus();
+
+                statusEl.innerHTML = `&lt;i class="fa-solid fa-circle-check text-emerald-400"&gt;&lt;/i&gt;&lt;span class="text-emerald-400"&gt;Stealth portal deployed successfully!&lt;/span&gt;`;
+            } catch (error) {
+                newTab.close();
+                statusEl.innerHTML = `&lt;i class="fa-solid fa-circle-xmark text-red-400"&gt;&lt;/i&gt;&lt;span class="text-red-400"&gt;Execution failed: ${error.message}&lt;/span&gt;`;
+            }
+        });
+    </script>
+
+</div></div></foreignObject></svg>
