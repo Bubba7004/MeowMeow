@@ -234,6 +234,9 @@
   .bubble-row.in .bubble{background:var(--bubble-in);color:var(--text);border-bottom-left-radius:5px;}
   .bubble img, .bubble video{max-width:260px;border-radius:12px;display:block;}
   .msg-time{font-size:10px;color:var(--text-dim);margin-top:3px;padding:0 4px;}
+  .history-note{
+    align-self:center;font-size:11px;color:var(--text-dim);padding:4px 10px;
+  }
   .typing-row{font-size:12px;color:var(--text-dim);padding-left:4px;font-style:italic;}
 
   .composer{
@@ -731,7 +734,8 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import {
   getDatabase, ref, set, get, push, update, remove, onValue, onChildAdded,
-  onChildChanged, onChildRemoved, serverTimestamp, query, orderByChild, equalTo, onDisconnect, off
+  onChildChanged, onChildRemoved, serverTimestamp, query, orderByChild, equalTo, onDisconnect, off,
+  orderByKey, limitToLast, startAt, startAfter, endBefore
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
 const firebaseConfig = {
@@ -992,6 +996,7 @@ async function enterApp(user, profile) {
   listenChats();
   listenGroups();
   listenIncomingCalls();
+  loadIceServers();
 
   // Best-effort: some browsers allow this since it's still close to the login click's
   // user gesture. If blocked, the 🔔 button lets the person grant it manually.
@@ -1453,12 +1458,12 @@ $('group-create-btn').onclick = async () => {
 
 /* ---------------- Chat window ---------------- */
 function closeOpenChat() {
-  if (openChatId) off(ref(db, 'chats/' + openChatId + '/messages'));
+  detachChatListeners();
+  chatSession++;
+  chatBasePath = null;
   if (typingUnsub) { typingUnsub(); typingUnsub = null; }
   if (readsUnsub) { readsUnsub(); readsUnsub = null; }
   chatReads = {};
-  messagesUnsub = null;
-  if (openChatId) off(ref(db, basePathFor(openChatKind, openChatId) + '/messages'));
   openChatUid = null; openChatId = null; openChatKind = 'dm'; openGroupMembersForChat = null;
   $('group-call-banner').style.display = 'none';
   $('chat-placeholder').style.display = 'flex';
@@ -1467,7 +1472,8 @@ function closeOpenChat() {
 }
 
 function openChat(uid, u) {
-  if (openChatId) off(ref(db, basePathFor(openChatKind, openChatId) + '/messages'));
+  detachChatListeners();
+  const token = ++chatSession;
   if (typingUnsub) typingUnsub();
   if (readsUnsub) readsUnsub();
   chatReads = {};
@@ -1488,25 +1494,11 @@ function openChat(uid, u) {
   $('manage-group-btn').style.display = 'none';
   $('leave-group-btn').style.display = 'none';
   $('group-call-banner').style.display = 'none';
-  $('messages').innerHTML = '';
-  lastDay = null;
+  resetMessageView();
   renderChatsList();
 
-  const msgsRef = ref(db, 'chats/' + thisChatId + '/messages');
-  onChildAdded(msgsRef, (data) => {
-    appendMessage(data.val(), data.key, 'chats/' + thisChatId, null);
-    if ((data.val() || {}).senderUid !== currentUser.uid && openChatId === thisChatId
-        && document.visibilityState === 'visible') {
-      markChatRead('chats/' + thisChatId);
-    }
-  });
-  onChildChanged(msgsRef, (data) => {
-    updateMessageReactions(data.key, (data.val() || {}).reactions || {});
-  });
-  onChildRemoved(msgsRef, (data) => {
-    const row = document.querySelector(`.bubble-row[data-msg-key="${data.key}"]`);
-    if (row) row.remove();
-  });
+  chatBasePath = 'chats/' + thisChatId;
+  startMessageHistory(chatBasePath, null, token);
 
   const readsRef = ref(db, 'chats/' + thisChatId + '/reads');
   readsUnsub = onValue(readsRef, (snap) => {
@@ -1537,7 +1529,8 @@ function openChat(uid, u) {
 }
 
 async function openGroupChat(groupId, group) {
-  if (openChatId) off(ref(db, basePathFor(openChatKind, openChatId) + '/messages'));
+  detachChatListeners();
+  const token = ++chatSession;
   if (typingUnsub) typingUnsub();
   if (readsUnsub) readsUnsub();
   chatReads = {};
@@ -1554,8 +1547,7 @@ async function openGroupChat(groupId, group) {
   $('unfriend-btn').style.display = 'none';
   $('manage-group-btn').style.display = 'inline-flex';
   $('leave-group-btn').style.display = 'inline-flex';
-  $('messages').innerHTML = '';
-  lastDay = null;
+  resetMessageView();
   renderChatsList();
 
   // Cache member profiles for sender labels on group messages.
@@ -1567,22 +1559,11 @@ async function openGroupChat(groupId, group) {
     const s = await get(ref(db, 'users/' + uid));
     if (s.exists()) openGroupMembersForChat[uid] = s.val();
   }
+  // The person may have switched chats while member profiles were loading.
+  if (token !== chatSession) return;
 
-  const msgsRef = ref(db, `groupChats/${groupId}/messages`);
-  onChildAdded(msgsRef, (data) => {
-    appendMessage(data.val(), data.key, `groupChats/${groupId}`, openGroupMembersForChat);
-    if ((data.val() || {}).senderUid !== currentUser.uid && openChatId === groupId
-        && document.visibilityState === 'visible') {
-      markChatRead(`groupChats/${groupId}`);
-    }
-  });
-  onChildChanged(msgsRef, (data) => {
-    updateMessageReactions(data.key, (data.val() || {}).reactions || {});
-  });
-  onChildRemoved(msgsRef, (data) => {
-    const row = document.querySelector(`.bubble-row[data-msg-key="${data.key}"]`);
-    if (row) row.remove();
-  });
+  chatBasePath = `groupChats/${groupId}`;
+  startMessageHistory(chatBasePath, openGroupMembersForChat, token);
 
   const readsRef = ref(db, `groupChats/${groupId}/reads`);
   readsUnsub = onValue(readsRef, (snap) => {
@@ -1820,17 +1801,203 @@ function renderSeenLine() {
   lastOutRow.appendChild(line);
 }
 
-let lastDay = null;
+/* ---------------- Message history (loads in pages as you scroll up) ----------------
+   Only the newest PAGE_SIZE messages are downloaded when a chat opens. Scrolling
+   near the top fetches the next older page and prepends it, so long chats stay
+   fast and light on memory instead of loading everything at once. Queries are
+   ordered by key (push IDs are chronological), which needs no database index. */
+const PAGE_SIZE = 30;
+let chatSession = 0;          // bumps whenever a chat is opened/closed, so stale async results are dropped
+let chatBasePath = null;      // 'chats/<id>' or 'groupChats/<id>' for the open chat
+let oldestLoadedKey = null;
+let hasMoreOlder = false;
+let loadingOlder = false;
+let stickBottom = true;       // true while the view is at/near the bottom
+let chatLiveUnsubs = [];      // listener for brand-new messages
+let chatEditUnsubs = [];      // listeners for reactions/deletions on loaded messages
+let lastDay = null;           // day of the newest rendered message
+let oldestDay = null;         // day of the oldest rendered message
+
+function detachChatListeners() {
+  [...chatLiveUnsubs, ...chatEditUnsubs].forEach(fn => { try { fn(); } catch (e) {} });
+  chatLiveUnsubs = [];
+  chatEditUnsubs = [];
+}
+
+function resetMessageView() {
+  $('messages').innerHTML = '';
+  lastDay = null;
+  oldestDay = null;
+  oldestLoadedKey = null;
+  hasMoreOlder = false;
+  loadingOlder = false;
+  stickBottom = true;
+}
+
+function setHistoryNote(text) {
+  const container = $('messages');
+  let note = container.querySelector('.history-note');
+  if (!text) { if (note) note.remove(); return; }
+  if (!note) {
+    note = document.createElement('div');
+    note.className = 'history-note';
+    container.prepend(note);
+  }
+  note.innerText = text;
+}
+
+function makeDaySep(day) {
+  const sep = document.createElement('div');
+  sep.className = 'day-sep';
+  sep.innerText = day === new Date().toDateString() ? 'Today' : day;
+  return sep;
+}
+
+// Reactions and deletions only need watching for messages that are on screen,
+// so this re-attaches from the oldest loaded message each time a page loads.
+function attachEditListeners(basePath, token) {
+  chatEditUnsubs.forEach(fn => { try { fn(); } catch (e) {} });
+  chatEditUnsubs = [];
+  const msgsRef = ref(db, basePath + '/messages');
+  const q = oldestLoadedKey ? query(msgsRef, orderByKey(), startAt(oldestLoadedKey)) : query(msgsRef, orderByKey());
+  chatEditUnsubs.push(onChildChanged(q, (data) => {
+    if (token !== chatSession) return;
+    updateMessageReactions(data.key, (data.val() || {}).reactions || {});
+  }));
+  chatEditUnsubs.push(onChildRemoved(q, (data) => {
+    if (token !== chatSession) return;
+    const row = document.querySelector(`.bubble-row[data-msg-key="${data.key}"]`);
+    if (row) row.remove();
+  }));
+}
+
+async function startMessageHistory(basePath, membersMap, token) {
+  const msgsRef = ref(db, basePath + '/messages');
+  const container = $('messages');
+  let snap;
+  try {
+    snap = await get(query(msgsRef, orderByKey(), limitToLast(PAGE_SIZE)));
+  } catch (err) {
+    console.error('Could not load messages:', err);
+    if (token === chatSession) showToast('Could not load messages: ' + (err.message || 'permission error'));
+    return;
+  }
+  if (token !== chatSession) return;
+
+  let newestKey = null;
+  let count = 0;
+  snap.forEach(child => {
+    appendMessage(child.val(), child.key, basePath, membersMap);
+    if (!oldestLoadedKey) oldestLoadedKey = child.key;
+    newestKey = child.key;
+    count++;
+  });
+  hasMoreOlder = count >= PAGE_SIZE;
+  setHistoryNote(hasMoreOlder ? 'Scroll up for older messages' : (count ? 'Start of conversation' : ''));
+  stickBottom = true;
+  container.scrollTop = container.scrollHeight;
+
+  // New messages: everything after the newest one already shown.
+  const addedQuery = newestKey
+    ? query(msgsRef, orderByKey(), startAfter(newestKey))
+    : query(msgsRef, orderByKey());
+  chatLiveUnsubs.push(onChildAdded(addedQuery, (data) => {
+    if (token !== chatSession) return;
+    appendMessage(data.val(), data.key, basePath, membersMap);
+    if ((data.val() || {}).senderUid !== currentUser.uid && document.visibilityState === 'visible') {
+      markChatRead(basePath);
+    }
+  }));
+  attachEditListeners(basePath, token);
+
+  // On tall screens the first page might not fill the view (no scrollbar, so
+  // no scroll event) — keep fetching until it does or history runs out.
+  fillViewport(token);
+}
+
+async function fillViewport(token) {
+  const c = $('messages');
+  for (let i = 0; i < 5; i++) {
+    if (token !== chatSession || !hasMoreOlder || c.scrollHeight > c.clientHeight + 20) return;
+    await loadOlderMessages();
+  }
+}
+
+async function loadOlderMessages() {
+  if (loadingOlder || !hasMoreOlder || !oldestLoadedKey || !chatBasePath) return;
+  loadingOlder = true;
+  const token = chatSession;
+  const basePath = chatBasePath;
+  const membersMap = openChatKind === 'group' ? openGroupMembersForChat : null;
+  const container = $('messages');
+  setHistoryNote('Loading older messages…');
+  try {
+    const snap = await get(query(
+      ref(db, basePath + '/messages'), orderByKey(), endBefore(oldestLoadedKey), limitToLast(PAGE_SIZE)
+    ));
+    if (token !== chatSession) return;
+    const items = [];
+    snap.forEach(child => { items.push([child.key, child.val()]); });
+    hasMoreOlder = items.length >= PAGE_SIZE;
+
+    if (items.length) {
+      const prevHeight = container.scrollHeight;
+      const prevTop = container.scrollTop;
+      const frag = document.createDocumentFragment();
+      let prevDay = null;
+      for (const [key, msg] of items) {
+        const day = new Date(msg.timestamp).toDateString();
+        if (day !== prevDay) { frag.appendChild(makeDaySep(day)); prevDay = day; }
+        frag.appendChild(buildMessageRow(msg, key, basePath, membersMap));
+      }
+      // If the newest of these is from the same day as the oldest message already
+      // shown, drop the old separator so that day isn't labelled twice.
+      if (prevDay === oldestDay) {
+        const firstSep = container.querySelector('.day-sep');
+        if (firstSep) firstSep.remove();
+      }
+      const note = container.querySelector('.history-note');
+      container.insertBefore(frag, note ? note.nextSibling : container.firstChild);
+      oldestDay = new Date(items[0][1].timestamp).toDateString();
+      oldestLoadedKey = items[0][0];
+      // Keep the message you were looking at in the same place on screen.
+      container.scrollTop = prevTop + (container.scrollHeight - prevHeight);
+      attachEditListeners(basePath, token);
+    }
+  } catch (err) {
+    console.error('Could not load older messages:', err);
+    showToast('Could not load older messages.');
+  } finally {
+    loadingOlder = false;
+    if (token === chatSession) {
+      setHistoryNote(hasMoreOlder ? 'Scroll up for older messages' : 'Start of conversation');
+    }
+  }
+}
+
+$('messages').addEventListener('scroll', () => {
+  const c = $('messages');
+  stickBottom = c.scrollHeight - c.scrollTop - c.clientHeight < 150;
+  if (c.scrollTop < 120) loadOlderMessages();
+});
+
 function appendMessage(msg, key, basePath, membersMap) {
   const container = $('messages');
+  if (key && container.querySelector(`.bubble-row[data-msg-key="${key}"]`)) return; // already shown
+  const wasNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 150;
   const day = new Date(msg.timestamp).toDateString();
   if (day !== lastDay) {
-    const sep = document.createElement('div');
-    sep.className = 'day-sep';
-    sep.innerText = day === new Date().toDateString() ? 'Today' : day;
-    container.appendChild(sep);
+    container.appendChild(makeDaySep(day));
     lastDay = day;
   }
+  if (oldestDay === null) oldestDay = day;
+  container.appendChild(buildMessageRow(msg, key, basePath, membersMap));
+  // Don't yank someone down to the bottom while they're reading older messages.
+  if (wasNearBottom || msg.senderUid === currentUser.uid) container.scrollTop = container.scrollHeight;
+  renderSeenLine();
+}
+
+function buildMessageRow(msg, key, basePath, membersMap) {
   const isOut = msg.senderUid === currentUser.uid;
   const row = document.createElement('div');
   row.className = 'bubble-row ' + (isOut ? 'out' : 'in');
@@ -1902,6 +2069,8 @@ function appendMessage(msg, key, basePath, membersMap) {
   } else if (msg.type === 'image' || msg.type === 'gif') {
     const img = document.createElement('img');
     img.src = msg.content;
+    // Images load after the row is added; keep the view pinned to the bottom if it was.
+    img.addEventListener('load', () => { if (stickBottom) { const c = $('messages'); c.scrollTop = c.scrollHeight; } });
     bubble.appendChild(img);
   } else if (msg.type === 'video') {
     const vid = document.createElement('video');
@@ -1920,9 +2089,7 @@ function appendMessage(msg, key, basePath, membersMap) {
   time.className = 'msg-time';
   time.innerText = formatTime(msg.timestamp);
   row.appendChild(time);
-  container.appendChild(row);
-  container.scrollTop = container.scrollHeight;
-  renderSeenLine();
+  return row;
 }
 
 async function sendChatMessage(type, content) {
@@ -2317,57 +2484,152 @@ if ($('back-to-sidebar-btn')) {
 /* =========================================================
    WEBRTC CALLING
    ========================================================= */
-// STUN alone only works when both sides can form a direct peer-to-peer path.
-// Whenever either side is behind a symmetric NAT, a strict firewall, or a
-// different network/ISP that blocks direct UDP, the connection needs a TURN
-// server to relay media instead. Without one, calls will randomly fail to
-// connect across networks even though everything looks fine locally.
-// The TURN entries below use the free Open Relay Project servers so calls
-// work out of the box; they're best-effort and rate-limited, so for a real
-// deployment swap in your own TURN credentials (e.g. from Twilio, Metered,
-// or Cloudflare Calls) — the shape of the config stays the same.
+// ---------------------------------------------------------------------------
+// ICE / TURN CONFIGURATION
+//
+// STUN only lets two browsers find each other when a direct path exists.
+// Across different networks (mobile data, strict NATs, school/work Wi-Fi) the
+// media has to be relayed by a TURN server, and TURN servers need credentials.
+// The old shared "openrelayproject" credentials no longer work — they are why
+// calls sat on "Connecting..." forever — so you need your own. Pick ONE:
+//
+//  A) Metered (free tier = 20 GB/month, no card needed):
+//       1. Sign up at https://www.metered.ca and create an app.
+//       2. Copy your credentials URL from the dashboard, it looks like:
+//          https://YOURAPP.metered.live/api/v1/turn/credentials?apiKey=YOURKEY
+//       3. Paste it into TURN_CREDENTIALS_URL below.
+//
+//  B) Any other TURN server (your own coturn, Twilio, Cloudflare Calls, ...):
+//       add entries to MANUAL_TURN_SERVERS below.
+//
+// To test relay-only mode without editing the file, open the page with
+// ?turnonly=1 on the end of the URL. Relay-only sends ALL media through TURN,
+// so only use it for testing.
+// ---------------------------------------------------------------------------
+const TURN_CREDENTIALS_URL = '';
+const MANUAL_TURN_SERVERS = [
+  // { urls: 'turn:your.server.com:3478', username: 'user', credential: 'pass' },
+  // { urls: 'turns:your.server.com:443?transport=tcp', username: 'user', credential: 'pass' },
+];
+const FORCE_TURN_ONLY = new URLSearchParams(location.search).has('turnonly');
+const CALL_CONNECT_TIMEOUT_MS = 30000;
+
 const rtcConfig = {
+  iceTransportPolicy: FORCE_TURN_ONLY ? 'relay' : 'all',
   iceServers: [
     { urls: 'stun:stun.l.google.com:19302' },
-    { urls: 'stun:stun1.l.google.com:19302' },
-    {
-      urls: 'turn:openrelay.metered.ca:80',
-      username: 'openrelayproject',
-      credential: 'openrelayproject'
-    },
-    {
-      urls: 'turn:openrelay.metered.ca:443',
-      username: 'openrelayproject',
-      credential: 'openrelayproject'
-    },
-    {
-      urls: 'turn:openrelay.metered.ca:443?transport=tcp',
-      username: 'openrelayproject',
-      credential: 'openrelayproject'
-    }
+    { urls: 'stun:stun1.l.google.com:19302' }
   ],
   iceCandidatePoolSize: 10
 };
+
+let turnConfigured = false;
+let iceServersReady = null;
+function loadIceServers() {
+  if (iceServersReady) return iceServersReady;
+  iceServersReady = (async () => {
+    const extra = [];
+    if (TURN_CREDENTIALS_URL) {
+      try {
+        const r = await fetch(TURN_CREDENTIALS_URL);
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const list = await r.json();
+        if (Array.isArray(list)) extra.push(...list);
+      } catch (e) {
+        console.warn('Could not load TURN credentials:', e);
+        showToast('Could not load TURN credentials — check TURN_CREDENTIALS_URL.');
+      }
+    }
+    extra.push(...MANUAL_TURN_SERVERS);
+    const hasTurn = extra.some(s => [].concat(s.urls || []).some(u => /^turns?:/i.test(u)));
+    if (extra.length) rtcConfig.iceServers = [...rtcConfig.iceServers, ...extra];
+    turnConfigured = hasTurn;
+  })();
+  return iceServersReady;
+}
+
+// Call before starting/accepting any call. Returns false if the call should not proceed.
+async function prepareIce() {
+  await loadIceServers();
+  if (!turnConfigured) {
+    if (FORCE_TURN_ONLY) {
+      showToast('TURN-only mode needs TURN credentials — see the ICE / TURN CONFIGURATION block in the code.');
+      return false;
+    }
+    console.warn('No TURN server configured: calls across different networks will probably fail.');
+    showToast('No TURN server configured — this call may not connect across different networks.');
+  }
+  return true;
+}
+
 // Ties call state to the peer connection's real ICE state instead of to
 // when signaling finishes. The offer/answer exchange always completes
 // quickly (it's just a small SDP text blob relayed through Firebase), but
 // the actual audio/video path depends on ICE/TURN succeeding — which is
 // exactly what can fail, stall, or take a while across two different
-// networks. Previously "Connected" was shown the instant signaling
-// finished, so a call could say Connected while no media was flowing at
-// all, or while it was still trying to establish the path.
+// networks.
+//
+// It also reports WHY a connection is stuck: if ICE finishes gathering with
+// zero relay candidates, or the TURN server rejects/can't be reached, the
+// reason is surfaced right away instead of leaving the call on "Connecting..."
+// forever. Call .armTimeout() once the offer/answer exchange is done to also
+// give up after CALL_CONNECT_TIMEOUT_MS.
 function wireCallConnectionState(peerConn, { onConnected, onFailed } = {}) {
   let announcedConnected = false;
   let announcedFailure = false;
+  let relayCandidates = 0;
+  let lastTurnError = null;
+  let timer = null;
+
+  const fail = (reason) => {
+    if (announcedFailure || announcedConnected) return;
+    announcedFailure = true;
+    clearTimeout(timer);
+    console.warn('Call failed:', reason);
+    onFailed?.(reason);
+  };
+
+  peerConn.addEventListener('icecandidate', (e) => {
+    const c = e.candidate;
+    if (c && (c.type === 'relay' || / typ relay/.test(c.candidate || ''))) relayCandidates++;
+  });
+  peerConn.addEventListener('icecandidateerror', (e) => {
+    if (e.url && /^turns?:/i.test(e.url)) {
+      lastTurnError = `${e.errorCode} ${e.errorText || ''} (${e.url})`.trim();
+      console.warn('TURN error:', lastTurnError);
+    }
+  });
+  peerConn.addEventListener('icegatheringstatechange', () => {
+    if (peerConn.iceGatheringState !== 'complete' || relayCandidates > 0) return;
+    const why = lastTurnError
+      ? 'The TURN server rejected or could not be reached: ' + lastTurnError
+      : 'No relay (TURN) candidates were gathered — the TURN server is unreachable or its credentials are invalid.';
+    if (FORCE_TURN_ONLY) fail(why);
+    else if (turnConfigured) console.warn(why);
+  });
+
   peerConn.oniceconnectionstatechange = () => {
     const state = peerConn.iceConnectionState;
     if ((state === 'connected' || state === 'completed') && !announcedConnected) {
       announcedConnected = true;
+      clearTimeout(timer);
       onConnected?.();
     }
-    if (state === 'failed' && !announcedFailure) {
-      announcedFailure = true;
-      onFailed?.();
+    if (state === 'failed') {
+      fail(lastTurnError
+        ? 'Call failed to connect. TURN error: ' + lastTurnError
+        : 'Call failed to connect — this can happen across different networks or restrictive firewalls.');
+    }
+  };
+
+  return {
+    armTimeout() {
+      if (timer || announcedConnected || announcedFailure) return;
+      timer = setTimeout(() => fail(lastTurnError
+        ? 'Call timed out. TURN error: ' + lastTurnError
+        : (relayCandidates === 0
+            ? 'Call timed out — no TURN relay candidates were found. Check your TURN credentials.'
+            : 'Call timed out while connecting.')), CALL_CONNECT_TIMEOUT_MS);
     }
   };
 }
@@ -2376,6 +2638,7 @@ let pc = null;
 let localStream = null;
 let currentCallId = null;
 let currentCallRole = null; // 'caller' | 'callee'
+let currentCallPeerUid = null; // the other person in a 1:1 call, so a cancelled call can stop their phone ringing
 let micOn = true, camOn = true;
 let callCandidateUnsub = null;
 let callDocUnsub = null;
@@ -2423,6 +2686,8 @@ $('video-call-btn').onclick = () => openChatKind === 'group' ? startGroupCall('v
 
 async function startCall(type) {
   if (!openChatUid) return;
+  if (!(await prepareIce())) return;
+  currentCallPeerUid = openChatUid;
   const callId = chatIdFor(currentUser.uid, openChatUid) + '_' + Date.now();
   currentCallId = callId;
   currentCallRole = 'caller';
@@ -2441,11 +2706,11 @@ async function startCall(type) {
   pc.ontrack = (e) => { $('remote-video').srcObject = e.streams[0]; $('remote-video').volume = callVolume; };
 
   const thisPc = pc;
-  wireCallConnectionState(pc, {
+  const callWire = wireCallConnectionState(pc, {
     onConnected: () => { if (pc === thisPc) $('call-status').innerText = 'Connected'; },
-    onFailed: () => {
+    onFailed: (reason) => {
       if (pc !== thisPc) return; // a newer call has already replaced this one
-      showToast('Call failed to connect — this can happen across different networks or restrictive firewalls.');
+      showToast(reason);
       endCall(true);
     }
   });
@@ -2480,6 +2745,7 @@ async function startCall(type) {
       pendingCalleeCandidates.forEach(c => pc.addIceCandidate(c).catch(err => console.error('Failed to add queued ICE candidate', err)));
       pendingCalleeCandidates = [];
       $('call-status').innerText = 'Connecting...';
+      callWire.armTimeout();
     }
     if (data.status === 'declined' || data.status === 'ended') endCall(false);
   });
@@ -2497,6 +2763,7 @@ async function startCall(type) {
 }
 
 async function acceptCall(data) {
+  if (!(await prepareIce())) return;
   $('incoming-call-toast').classList.remove('show');
   currentCallId = data.callId;
   currentCallRole = 'callee';
@@ -2516,14 +2783,15 @@ async function acceptCall(data) {
   pc.ontrack = (e) => { $('remote-video').srcObject = e.streams[0]; $('remote-video').volume = callVolume; };
 
   const thisPc = pc;
-  wireCallConnectionState(pc, {
+  const callWire = wireCallConnectionState(pc, {
     onConnected: () => { if (pc === thisPc) $('call-status').innerText = 'Connected'; },
-    onFailed: () => {
+    onFailed: (reason) => {
       if (pc !== thisPc) return;
-      showToast('Call failed to connect — this can happen across different networks or restrictive firewalls.');
+      showToast(reason);
       endCall(true);
     }
   });
+  callWire.armTimeout();
 
   const calleeCandidatesRef = ref(db, `calls/${data.callId}/calleeCandidates`);
   pc.onicecandidate = (e) => { if (e.candidate) push(calleeCandidatesRef, e.candidate.toJSON()).catch(err => console.error('Failed to send ICE candidate', err)); };
@@ -2607,6 +2875,12 @@ $('end-call-btn').onclick = () => groupCallId ? endGroupCall() : endCall(true);
 async function endCall(notify) {
   if (currentCallId && notify) {
     await update(ref(db, 'calls/' + currentCallId), { status: 'ended' }).catch(()=>{});
+    // If the caller hangs up (or the call fails) before the other person answers,
+    // clear their ringing notification so it doesn't ring forever.
+    if (currentCallRole === 'caller' && currentCallPeerUid) {
+      const ringing = ref(db, 'incomingCall/' + currentCallPeerUid);
+      get(ringing).then(s => { if (s.exists() && s.val().callId === currentCallId) remove(ringing); }).catch(() => {});
+    }
   }
   if (pc) { pc.close(); pc = null; }
   if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
@@ -2615,6 +2889,7 @@ async function endCall(notify) {
   $('call-overlay').classList.remove('show');
   currentCallId = null;
   currentCallRole = null;
+  currentCallPeerUid = null;
 }
 
 /* =========================================================
@@ -2629,6 +2904,7 @@ function pairKeyFor(a, b) { return [a, b].sort().join('_'); }
 
 async function startGroupCall(type) {
   if (!openChatId || openChatKind !== 'group') return;
+  if (!(await prepareIce())) return;
   const groupId = openChatId;
 
   try {
@@ -2688,13 +2964,14 @@ async function connectToGroupPeer(groupId, otherUid) {
   localStream.getTracks().forEach(t => conn.addTrack(t, localStream));
   conn.ontrack = (e) => addOrUpdateRemoteTile(otherUid, e.streams[0]);
   conn.onicecandidate = (e) => { if (e.candidate) push(ref(db, myCandPath), e.candidate.toJSON()).catch(err => console.error('Failed to send ICE candidate', err)); };
-  wireCallConnectionState(conn, {
-    onFailed: () => {
+  const peerWire = wireCallConnectionState(conn, {
+    onFailed: (reason) => {
       if (groupPeerConnections[otherUid] !== conn) return; // already torn down/replaced
-      showToast('Lost connection to a participant — this can happen across different networks.');
+      showToast(reason);
       teardownGroupPeer(otherUid);
     }
   });
+  peerWire.armTimeout();
 
   // Candidates for this pair can arrive before we've applied the other
   // side's offer/answer — on both the offerer and answerer side here —
