@@ -2508,8 +2508,9 @@ if ($('back-to-sidebar-btn')) {
 // ---------------------------------------------------------------------------
 const TURN_CREDENTIALS_URL = '';
 const MANUAL_TURN_SERVERS = [
-  // { urls: 'turn:your.server.com:3478', username: 'user', credential: 'pass' },
-  // { urls: 'turns:your.server.com:443?transport=tcp', username: 'user', credential: 'pass' },
+  // ExpressTURN free plan (long-term credentials from the ExpressTURN dashboard).
+  { urls: 'turn:free.expressturn.com:3478', username: '000000002108265729', credential: 'U7hRwEKQeT9G0A4quKOfcdAE7I0=' },
+  { urls: 'turn:free.expressturn.com:3478?transport=tcp', username: '000000002108265729', credential: 'U7hRwEKQeT9G0A4quKOfcdAE7I0=' },
 ];
 const FORCE_TURN_ONLY = new URLSearchParams(location.search).has('turnonly');
 const CALL_CONNECT_TIMEOUT_MS = 30000;
