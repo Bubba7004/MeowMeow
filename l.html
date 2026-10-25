@@ -441,6 +441,55 @@
     #local-video{width:110px;height:80px;bottom:100px;right:14px;}
     #back-to-sidebar-btn { display: flex !important; }
   }
+
+  /* ---------- Calls tab, replies, search ---------- */
+  .tab{padding:11px 2px;font-size:12px;}
+  .call-row-sub{font-size:12px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .row.call-row .row-main{min-width:0;}
+  .call-row-sub.missed{color:var(--danger);}
+  .row.call-row .row-title.missed{color:var(--danger);}
+  .call-row-actions{display:flex;gap:6px;margin-left:auto;}
+  .call-row-actions .icon-btn{width:30px;height:30px;font-size:13px;}
+  .calls-head{display:flex;align-items:center;justify-content:space-between;padding:10px 16px 4px;font-size:12px;color:var(--text-dim);}
+  .calls-head button{background:none;border:none;color:var(--text-dim);font-size:12px;text-decoration:underline;}
+  .calls-head button:hover{color:var(--danger);}
+  .bubble-row.call-note-row{align-self:center;max-width:90%;align-items:center;}
+  .call-note{
+    display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;
+    background:var(--panel-2);border:1px solid var(--border);color:var(--text-dim);font-size:12.5px;
+  }
+  .call-note.missed{color:var(--danger);}
+  .call-note b{font-weight:600;color:var(--text);}
+  .call-note.missed b{color:var(--danger);}
+  .msg-text{white-space:pre-wrap;}
+  .msg-text a{color:inherit;text-decoration:underline;word-break:break-all;}
+  .reply-quote{
+    border-left:3px solid var(--accent-2);background:rgba(0,0,0,.14);border-radius:8px;
+    padding:4px 9px;margin-bottom:6px;cursor:pointer;max-width:100%;
+  }
+  .bubble-row.out .reply-quote{border-left-color:var(--on-accent);background:rgba(0,0,0,.12);}
+  .reply-quote-name{font-size:11.5px;font-weight:700;opacity:.9;}
+  .reply-quote-text{font-size:12.5px;opacity:.85;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:240px;}
+  .reply-bar{
+    display:none;align-items:center;gap:10px;padding:8px 18px;border-top:1px solid var(--border);
+    background:var(--panel);
+  }
+  .reply-bar-body{flex:1;min-width:0;border-left:3px solid var(--accent);padding-left:10px;}
+  .reply-bar-title{font-size:12px;font-weight:700;color:var(--accent);}
+  .reply-bar-snippet{font-size:12.5px;color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .chat-search-bar{
+    display:none;align-items:center;gap:8px;padding:8px 18px;border-bottom:1px solid var(--border);background:var(--panel);
+  }
+  .chat-search-bar input{
+    flex:1;padding:8px 12px;border-radius:9px;border:1px solid var(--border);background:var(--panel-2);
+    color:var(--text);font-size:13.5px;outline:none;
+  }
+  .chat-search-bar input:focus{border-color:var(--accent);}
+  #chat-search-count{font-size:12px;color:var(--text-dim);min-width:48px;text-align:center;}
+  .bubble-row.search-hit .bubble{box-shadow:0 0 0 2px var(--accent-2);}
+  .bubble-row.search-current .bubble{box-shadow:0 0 0 3px var(--accent);}
+  .bubble-row.flash .bubble{animation:flashMsg 1.2s ease;}
+  @keyframes flashMsg{0%,60%{box-shadow:0 0 0 3px var(--accent);}100%{box-shadow:0 0 0 0 transparent;}}
 </style>
 </head>
 <body data-theme="dark">
@@ -498,6 +547,7 @@
 
       <div class="tabs">
         <button class="tab active" data-tab="chats">Chats</button>
+        <button class="tab" data-tab="calls">Calls<span class="badge" id="calls-badge" style="display:none;">0</span></button>
         <button class="tab" data-tab="friends">Friends</button>
         <button class="tab" data-tab="requests">Requests<span class="badge" id="req-badge" style="display:none;">0</span></button>
         <button class="tab" data-tab="find">Find</button>
@@ -511,6 +561,7 @@
       </div>
 
       <div class="list" id="chats-list"></div>
+      <div class="list" id="calls-list" style="display:none;"></div>
       <div class="list" id="friends-list" style="display:none;"></div>
       <div class="list" id="requests-list" style="display:none;"></div>
       <div class="list" id="find-list" style="display:none;"></div>
@@ -532,12 +583,20 @@
             <div class="status" id="chat-header-status">—</div>
           </div>
           <div class="call-actions">
+            <button class="icon-btn" id="chat-search-btn" title="Search in chat">🔍</button>
             <button class="icon-btn" id="voice-call-btn" title="Voice call">📞</button>
             <button class="icon-btn" id="video-call-btn" title="Video call">🎥</button>
             <button class="icon-btn" id="unfriend-btn" title="Remove friend">🗑</button>
             <button class="icon-btn" id="manage-group-btn" title="Group members" style="display:none;">👥</button>
             <button class="icon-btn" id="leave-group-btn" title="Leave group" style="display:none;">🚪</button>
           </div>
+        </div>
+        <div class="chat-search-bar" id="chat-search-bar">
+          <input type="text" id="chat-search-input" placeholder="Search in this chat..." autocomplete="off">
+          <span id="chat-search-count"></span>
+          <button class="icon-btn" id="chat-search-prev" title="Previous (older)">▲</button>
+          <button class="icon-btn" id="chat-search-next" title="Next (newer)">▼</button>
+          <button class="icon-btn" id="chat-search-close" title="Close search">✕</button>
         </div>
         <div class="group-call-banner" id="group-call-banner" style="display:none;">
           🔴 Call in progress <button id="join-group-call-btn">Join</button>
@@ -546,6 +605,13 @@
         <div class="messages" id="messages"></div>
         <div class="typing-row" id="typing-indicator" style="display:none;padding:0 20px;"></div>
 
+        <div class="reply-bar" id="reply-bar">
+          <div class="reply-bar-body">
+            <div class="reply-bar-title" id="reply-bar-title"></div>
+            <div class="reply-bar-snippet" id="reply-bar-snippet"></div>
+          </div>
+          <button class="icon-btn" id="reply-bar-close" title="Cancel">✕</button>
+        </div>
         <div class="composer">
           <button class="icon-btn" id="emoji-btn">🙂</button>
           <button class="icon-btn" id="image-btn" title="Send photo">🖼</button>
@@ -1089,6 +1155,7 @@ async function enterApp(user, profile) {
   listenChats();
   listenGroups();
   listenIncomingCalls();
+  listenCallHistory();
   loadIceServers();
 
   if ('Notification' in window && Notification.permission === 'default') {
@@ -1144,14 +1211,319 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
+let callLog = null;
+let userCallsCache = {};
+let callHistoryUnsub = null;
+let callsSeenAt = 0;
+try { callsSeenAt = Number(localStorage.getItem('callsSeenAt') || 0); } catch (e) {}
+
+function newCallLog(direction, uid, type) {
+  const peer = friendsCache[uid] || {};
+  return { peerUid: uid, peerName: peer.username || 'Unknown', direction, type, startedAt: Date.now(), connectedAt: null, outcome: null };
+}
+function saveCallRecord(rec) {
+  push(ref(db, 'userCalls/' + currentUser.uid), rec).catch(err => console.warn('Could not save call history:', err));
+}
+function logIncomingCall(d, outcome) {
+  saveCallRecord({
+    peerUid: d.fromUid, peerName: d.fromUsername || 'Unknown', direction: 'in',
+    type: d.type, outcome, startedAt: Date.now(), duration: 0
+  });
+}
+function finalizeCallLog() {
+  const l = callLog;
+  if (!l) return;
+  callLog = null;
+  const now = Date.now();
+  let outcome = l.outcome;
+  let duration = 0;
+  if (l.connectedAt) {
+    outcome = 'completed';
+    duration = Math.max(1, Math.round((now - l.connectedAt) / 1000));
+  } else if (!outcome) {
+    outcome = l.direction === 'out' ? 'cancelled' : 'failed';
+  }
+  saveCallRecord({
+    peerUid: l.peerUid, peerName: l.peerName, direction: l.direction, type: l.type,
+    outcome, startedAt: l.startedAt, duration
+  });
+  if (l.direction === 'out') {
+    const chatId = chatIdFor(currentUser.uid, l.peerUid);
+    push(ref(db, `chats/${chatId}/messages`), {
+      senderUid: currentUser.uid, type: 'call', timestamp: now,
+      content: JSON.stringify({
+        type: l.type, duration,
+        outcome: outcome === 'completed' ? 'completed' : outcome === 'declined' ? 'declined' : 'missed'
+      })
+    }).catch(() => {});
+  }
+}
+function formatDuration(sec) {
+  sec = Math.max(0, Math.round(sec || 0));
+  const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), r = sec % 60;
+  return h ? `${h}:${String(m).padStart(2, '0')}:${String(r).padStart(2, '0')}` : `${m}:${String(r).padStart(2, '0')}`;
+}
+function formatCallWhen(ts) {
+  const d = new Date(ts);
+  const time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  if (d.toDateString() === new Date().toDateString()) return time;
+  return d.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ', ' + time;
+}
+function callLabel(rec) {
+  const kind = rec.type === 'video' ? 'Video' : 'Voice';
+  if (rec.outcome === 'completed') return `${rec.direction === 'out' ? 'Outgoing' : 'Incoming'} ${kind.toLowerCase()} · ${formatDuration(rec.duration)}`;
+  if (rec.outcome === 'missed') return `Missed ${kind.toLowerCase()} call`;
+  if (rec.outcome === 'declined') return rec.direction === 'out' ? 'Declined' : 'You declined';
+  if (rec.outcome === 'cancelled') return `No answer · ${kind.toLowerCase()}`;
+  return `Failed · ${kind.toLowerCase()}`;
+}
+function isMissedIncoming(rec) { return rec.direction === 'in' && rec.outcome === 'missed'; }
+
+function listenCallHistory() {
+  if (callHistoryUnsub) { callHistoryUnsub(); callHistoryUnsub = null; }
+  userCallsCache = {};
+  callHistoryUnsub = onValue(query(ref(db, 'userCalls/' + currentUser.uid), orderByKey(), limitToLast(60)), (snap) => {
+    userCallsCache = snap.exists() ? snap.val() : {};
+    renderCallsList();
+    if (activeTab === 'calls') markCallsSeen(); else updateCallsBadge();
+  }, (err) => console.warn('Call history unavailable (check database rules for userCalls):', err));
+}
+function markCallsSeen() {
+  callsSeenAt = Date.now();
+  try { localStorage.setItem('callsSeenAt', String(callsSeenAt)); } catch (e) {}
+  updateCallsBadge();
+}
+function updateCallsBadge() {
+  const n = Object.values(userCallsCache).filter(r => isMissedIncoming(r) && (r.startedAt || 0) > callsSeenAt).length;
+  const b = $('calls-badge');
+  b.innerText = n;
+  b.style.display = n > 0 ? 'inline' : 'none';
+}
+function callBack(uid, type) {
+  const u = friendsCache[uid];
+  if (!u) { showToast('You can only call friends.'); return; }
+  openChat(uid, u);
+  startCall(type);
+}
+function renderCallsList() {
+  const list = $('calls-list');
+  const entries = Object.entries(userCallsCache).sort((a, b) => (b[1].startedAt || 0) - (a[1].startedAt || 0));
+  list.innerHTML = '';
+  if (!entries.length) {
+    list.innerHTML = '<div class="empty-state">No calls yet. Your call history will show up here.</div>';
+    return;
+  }
+  const head = document.createElement('div');
+  head.className = 'calls-head';
+  head.innerHTML = '<span>Recent calls</span><button type="button">Clear history</button>';
+  head.querySelector('button').onclick = async () => {
+    if (!confirm('Clear your call history? This only affects you.')) return;
+    try { await remove(ref(db, 'userCalls/' + currentUser.uid)); } catch (e) { showToast('Could not clear call history.'); }
+  };
+  list.appendChild(head);
+  entries.forEach(([key, rec]) => {
+    const friend = friendsCache[rec.peerUid];
+    const name = friend ? friend.username : (rec.peerName || 'Unknown');
+    const missed = isMissedIncoming(rec);
+    const arrow = rec.direction === 'out' ? '↗' : '↙';
+    const row = document.createElement('div');
+    row.className = 'row call-row';
+    row.innerHTML = `
+      <img class="avatar" src="${esc((friend && friend.photoURL) || defaultAvatar(name))}">
+      <div class="row-main">
+        <div class="row-title ${missed ? 'missed' : ''}">${esc(name)}</div>
+        <div class="call-row-sub ${missed ? 'missed' : ''}">${arrow} ${esc(callLabel(rec))} · ${esc(formatCallWhen(rec.startedAt))}</div>
+      </div>`;
+    if (friend) {
+      const actions = document.createElement('div');
+      actions.className = 'call-row-actions';
+      const voice = document.createElement('button');
+      voice.className = 'icon-btn'; voice.title = 'Voice call'; voice.innerText = '📞';
+      voice.onclick = (e) => { e.stopPropagation(); callBack(rec.peerUid, 'audio'); };
+      const video = document.createElement('button');
+      video.className = 'icon-btn'; video.title = 'Video call'; video.innerText = '🎥';
+      video.onclick = (e) => { e.stopPropagation(); callBack(rec.peerUid, 'video'); };
+      actions.append(voice, video);
+      row.appendChild(actions);
+      row.onclick = () => openChat(rec.peerUid, friend);
+    }
+    list.appendChild(row);
+  });
+}
+
+let replyingTo = null;
+let editingMsg = null;
+
+function messageSnippet(msg) {
+  if (msg.type === 'text') return String(msg.content || '').replace(/\s+/g, ' ').slice(0, 90);
+  if (msg.type === 'image') return '📷 Photo';
+  if (msg.type === 'video') return '🎬 Video';
+  if (msg.type === 'gif') return '🎞 GIF';
+  return '';
+}
+function senderLabel(uid, membersMap) {
+  if (uid === currentUser.uid) return 'You';
+  return (membersMap && membersMap[uid] && membersMap[uid].username)
+    || (friendsCache[uid] && friendsCache[uid].username) || 'Someone';
+}
+function showComposerBar(title, snippet) {
+  $('reply-bar-title').innerText = title;
+  $('reply-bar-snippet').innerText = snippet;
+  $('reply-bar').style.display = 'flex';
+  $('message-input').focus();
+}
+function startReply(key, msg, membersMap) {
+  editingMsg = null;
+  replyingTo = { key: key || '', senderUid: msg.senderUid, text: messageSnippet(msg) };
+  showComposerBar('Replying to ' + senderLabel(msg.senderUid, membersMap), replyingTo.text);
+}
+function startEdit(key, msg, basePath) {
+  replyingTo = null;
+  editingMsg = { key, basePath };
+  showComposerBar('Editing message', msg.content);
+  const input = $('message-input');
+  input.value = msg.content;
+  input.style.height = 'auto';
+  input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+}
+function clearComposerMode() {
+  const wasEditing = !!editingMsg;
+  replyingTo = null;
+  editingMsg = null;
+  $('reply-bar').style.display = 'none';
+  if (wasEditing) { $('message-input').value = ''; $('message-input').style.height = 'auto'; }
+}
+$('reply-bar-close').onclick = clearComposerMode;
+
+function setLinkifiedText(el, text) {
+  const nodes = [];
+  String(text == null ? '' : text).split(/(https?:\/\/[^\s<]+)/g).forEach((part, i) => {
+    if (i % 2 === 1) {
+      const a = document.createElement('a');
+      a.href = part; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.textContent = part;
+      nodes.push(a);
+    } else if (part) {
+      nodes.push(document.createTextNode(part));
+    }
+  });
+  el.replaceChildren(...nodes);
+}
+function buildReplyQuote(replyTo, membersMap) {
+  const q = document.createElement('div');
+  q.className = 'reply-quote';
+  const n = document.createElement('div');
+  n.className = 'reply-quote-name';
+  n.innerText = senderLabel(replyTo.senderUid, membersMap);
+  const t = document.createElement('div');
+  t.className = 'reply-quote-text';
+  t.innerText = replyTo.text || 'Message';
+  q.append(n, t);
+  q.onclick = (e) => { e.stopPropagation(); jumpToMessage(replyTo.key); };
+  return q;
+}
+function jumpToMessage(key) {
+  const row = key && document.querySelector(`.bubble-row[data-msg-key="${key}"]`);
+  if (!row) { showToast('That message isn\'t loaded — scroll up to load older messages.'); return; }
+  row.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  row.classList.remove('flash');
+  void row.offsetWidth;
+  row.classList.add('flash');
+}
+function buildCallNote(msg, key) {
+  let info = {};
+  try { info = JSON.parse(msg.content); } catch (e) {}
+  const mine = msg.senderUid === currentUser.uid;
+  const kind = info.type === 'video' ? 'video' : 'voice';
+  let text, missed = false;
+  if (info.outcome === 'completed') text = `${mine ? 'Outgoing' : 'Incoming'} ${kind} call · ${formatDuration(info.duration)}`;
+  else if (info.outcome === 'declined') text = mine ? 'Call declined' : 'You declined a call';
+  else { text = mine ? `No answer · ${kind} call` : `Missed ${kind} call`; missed = !mine; }
+  const row = document.createElement('div');
+  row.className = 'bubble-row call-note-row';
+  if (key) row.dataset.msgKey = key;
+  if (msg.timestamp) row.dataset.timestamp = msg.timestamp;
+  const note = document.createElement('div');
+  note.className = 'call-note' + (missed ? ' missed' : '');
+  note.innerHTML = `<span>${info.type === 'video' ? '🎥' : '📞'}</span><b></b><span>${esc(formatTime(msg.timestamp))}</span>`;
+  note.querySelector('b').innerText = text;
+  row.appendChild(note);
+  return row;
+}
+function updateMessageBody(key, val) {
+  const row = document.querySelector(`.bubble-row[data-msg-key="${key}"]`);
+  if (!row || !val || val.type !== 'text') return;
+  const body = row.querySelector('.msg-text');
+  if (body) setLinkifiedText(body, val.content);
+  const t = row.querySelector('.msg-time');
+  if (t) t.innerText = formatTime(val.timestamp) + (val.edited ? ' · edited' : '');
+}
+
+let searchHits = [], searchIdx = -1, searchToken = 0, searchTimer = null;
+function openChatSearch() {
+  $('chat-search-bar').style.display = 'flex';
+  $('chat-search-input').focus();
+}
+function clearSearchMarks() {
+  document.querySelectorAll('.bubble-row.search-hit, .bubble-row.search-current')
+    .forEach(r => r.classList.remove('search-hit', 'search-current'));
+  searchHits = []; searchIdx = -1;
+  $('chat-search-count').innerText = '';
+}
+function closeChatSearch() {
+  searchToken++;
+  clearTimeout(searchTimer);
+  clearSearchMarks();
+  $('chat-search-input').value = '';
+  $('chat-search-bar').style.display = 'none';
+}
+function goToSearchHit(i) {
+  if (!searchHits.length) { $('chat-search-count').innerText = '0'; return; }
+  searchIdx = (i + searchHits.length) % searchHits.length;
+  searchHits.forEach(r => r.classList.remove('search-current'));
+  const row = searchHits[searchIdx];
+  row.classList.add('search-current');
+  row.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  $('chat-search-count').innerText = `${searchIdx + 1}/${searchHits.length}`;
+}
+async function runChatSearch() {
+  const q = $('chat-search-input').value.trim().toLowerCase();
+  const my = ++searchToken;
+  clearSearchMarks();
+  if (!q) return;
+  let pages = 0;
+  while (hasMoreOlder && pages < 10 && my === searchToken) {
+    $('chat-search-count').innerText = 'Searching…';
+    if (loadingOlder) { await new Promise(r => setTimeout(r, 150)); continue; }
+    await loadOlderMessages();
+    pages++;
+  }
+  if (my !== searchToken) return;
+  searchHits = [...$('messages').querySelectorAll('.bubble-row')].filter(r => {
+    const b = r.querySelector('.msg-text');
+    return b && b.textContent.toLowerCase().includes(q);
+  });
+  searchHits.forEach(r => r.classList.add('search-hit'));
+  goToSearchHit(searchHits.length - 1);
+}
+$('chat-search-btn').onclick = () => ($('chat-search-bar').style.display === 'flex' ? closeChatSearch() : openChatSearch());
+$('chat-search-close').onclick = closeChatSearch;
+$('chat-search-prev').onclick = () => goToSearchHit(searchIdx - 1);
+$('chat-search-next').onclick = () => goToSearchHit(searchIdx + 1);
+$('chat-search-input').addEventListener('input', () => { clearTimeout(searchTimer); searchTimer = setTimeout(runChatSearch, 300); });
+$('chat-search-input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') { e.preventDefault(); if (searchHits.length) goToSearchHit(searchIdx + (e.shiftKey ? 1 : -1)); else runChatSearch(); }
+  if (e.key === 'Escape') closeChatSearch();
+});
+
 document.querySelectorAll('.tab').forEach(tab => {
   tab.onclick = () => {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
     activeTab = tab.dataset.tab;
-    ['chats-list','friends-list','requests-list','find-list'].forEach(id => $(id).style.display = 'none');
+    ['chats-list','calls-list','friends-list','requests-list','find-list'].forEach(id => $(id).style.display = 'none');
     $('find-search-wrap').style.display = activeTab === 'find' ? 'block' : 'none';
     $(activeTab + '-list').style.display = 'block';
+    if (activeTab === 'calls') markCallsSeen();
   };
 });
 
@@ -1532,6 +1904,8 @@ $('group-create-btn').onclick = async () => {
 };
 
 function closeOpenChat() {
+  closeChatSearch();
+  clearComposerMode();
   detachChatListeners();
   chatSession++;
   chatBasePath = null;
@@ -1874,6 +2248,8 @@ function detachChatListeners() {
 }
 
 function resetMessageView() {
+  closeChatSearch();
+  clearComposerMode();
   $('messages').innerHTML = '';
   lastDay = null;
   oldestDay = null;
@@ -1910,6 +2286,7 @@ function attachEditListeners(basePath, token) {
   chatEditUnsubs.push(onChildChanged(q, (data) => {
     if (token !== chatSession) return;
     updateMessageReactions(data.key, (data.val() || {}).reactions || {});
+    updateMessageBody(data.key, data.val());
   }));
   chatEditUnsubs.push(onChildRemoved(q, (data) => {
     if (token !== chatSession) return;
@@ -2038,6 +2415,7 @@ function appendMessage(msg, key, basePath, membersMap) {
 }
 
 function buildMessageRow(msg, key, basePath, membersMap) {
+  if (msg.type === 'call') return buildCallNote(msg, key);
   const isOut = msg.senderUid === currentUser.uid;
   const row = document.createElement('div');
   row.className = 'bubble-row ' + (isOut ? 'out' : 'in');
@@ -2065,6 +2443,20 @@ function buildMessageRow(msg, key, basePath, membersMap) {
     picker.classList.toggle('show');
   };
   actions.appendChild(reactBtn);
+  const replyBtn = document.createElement('button');
+  replyBtn.className = 'msg-action-btn';
+  replyBtn.innerText = '↩';
+  replyBtn.title = 'Reply';
+  replyBtn.onclick = (e) => { e.stopPropagation(); startReply(key, msg, membersMap); };
+  actions.appendChild(replyBtn);
+  if (isOut && msg.type === 'text' && key && basePath) {
+    const editBtn = document.createElement('button');
+    editBtn.className = 'msg-action-btn';
+    editBtn.innerText = '✎';
+    editBtn.title = 'Edit';
+    editBtn.onclick = (e) => { e.stopPropagation(); startEdit(key, msg, basePath); };
+    actions.appendChild(editBtn);
+  }
   if ((isOut || isAdmin) && key && basePath) {
     const delBtn = document.createElement('button');
     delBtn.className = 'msg-action-btn';
@@ -2105,8 +2497,12 @@ function buildMessageRow(msg, key, basePath, membersMap) {
   const bubble = document.createElement('div');
   bubble.className = 'bubble';
 
+  if (msg.replyTo) bubble.appendChild(buildReplyQuote(msg.replyTo, membersMap));
   if (msg.type === 'text') {
-    bubble.innerText = msg.content;
+    const body = document.createElement('span');
+    body.className = 'msg-text';
+    setLinkifiedText(body, msg.content);
+    bubble.appendChild(body);
   } else if (msg.type === 'image' || msg.type === 'gif') {
     const img = document.createElement('img');
     if (typeof msg.content === 'string' && msg.content.startsWith(FBIMG_PREFIX)) {
@@ -2131,7 +2527,7 @@ function buildMessageRow(msg, key, basePath, membersMap) {
 
   const time = document.createElement('div');
   time.className = 'msg-time';
-  time.innerText = formatTime(msg.timestamp);
+  time.innerText = formatTime(msg.timestamp) + (msg.edited ? ' · edited' : '');
   row.appendChild(time);
   return row;
 }
@@ -2142,6 +2538,7 @@ async function sendChatMessage(type, content) {
 
   const msgsRef = ref(db, 'chats/' + openChatId + '/messages');
   const payload = { senderUid: currentUser.uid, type, content, timestamp: Date.now() };
+  if (replyingTo) { payload.replyTo = replyingTo; clearComposerMode(); }
   await push(msgsRef, payload);
 
   const preview = type === 'text' ? content : (type === 'image' ? '📷 Photo' : type === 'video' ? '🎬 Video' : '🎞 GIF');
@@ -2159,6 +2556,7 @@ async function sendGroupMessage(type, content) {
   const groupId = openChatId;
   const msgsRef = ref(db, `groupChats/${groupId}/messages`);
   const payload = { senderUid: currentUser.uid, type, content, timestamp: Date.now() };
+  if (replyingTo) { payload.replyTo = replyingTo; clearComposerMode(); }
   await push(msgsRef, payload);
 
   const preview = type === 'text' ? content : (type === 'image' ? '📷 Photo' : type === 'video' ? '🎬 Video' : '🎞 GIF');
@@ -2176,11 +2574,19 @@ async function sendGroupMessage(type, content) {
 $('send-btn').onclick = sendText;
 $('message-input').addEventListener('keydown', (e) => {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendText(); }
+  if (e.key === 'Escape' && (editingMsg || replyingTo)) clearComposerMode();
 });
 function sendText() {
   const input = $('message-input');
   const text = input.value.trim();
   if (!text || !openChatId) return;
+  if (editingMsg) {
+    const { key, basePath } = editingMsg;
+    clearComposerMode();
+    update(ref(db, `${basePath}/messages/${key}`), { content: text, edited: true })
+      .catch(() => showToast('Could not edit message.'));
+    return;
+  }
   sendChatMessage('text', text);
   input.value = '';
   input.style.height = 'auto';
@@ -2639,11 +3045,18 @@ let groupPeerConnections = {};
 let groupUnsubFns = [];
 
 let lastNotifiedCallId = null;
+let ringingCall = null;
 function listenIncomingCalls() {
   onValue(ref(db, 'incomingCall/' + currentUser.uid), async (snap) => {
-    if (!snap.exists()) { $('incoming-call-toast').classList.remove('show'); return; }
+    if (!snap.exists()) {
+      if (ringingCall && !ringingCall.handled) logIncomingCall(ringingCall, 'missed');
+      ringingCall = null;
+      $('incoming-call-toast').classList.remove('show');
+      return;
+    }
     const data = snap.val();
     if (data.status !== 'ringing') return;
+    if (!ringingCall || ringingCall.callId !== data.callId) ringingCall = { ...data, handled: false };
 
     $('incoming-avatar').src = data.fromPhoto || defaultAvatar(data.fromUsername);
     $('incoming-name').innerText = data.fromUsername;
@@ -2661,8 +3074,10 @@ function listenIncomingCalls() {
       bumpUnread();
     }
 
-    $('accept-call-btn').onclick = () => acceptCall(data);
+    $('accept-call-btn').onclick = () => { if (ringingCall) ringingCall.handled = true; acceptCall(data); };
     $('decline-call-btn').onclick = async () => {
+      if (ringingCall) ringingCall.handled = true;
+      logIncomingCall(data, 'declined');
       await update(ref(db, 'calls/' + data.callId), { status: 'declined' });
       await remove(ref(db, 'incomingCall/' + currentUser.uid));
       $('incoming-call-toast').classList.remove('show');
@@ -2705,6 +3120,7 @@ async function startCall(type) {
   if (!openChatUid) return;
   if (!(await prepareIce())) return;
   currentCallPeerUid = openChatUid;
+  callLog = newCallLog('out', openChatUid, type);
   const callId = chatIdFor(currentUser.uid, openChatUid) + '_' + Date.now();
   currentCallId = callId;
   currentCallRole = 'caller';
@@ -2719,7 +3135,7 @@ async function startCall(type) {
 
   const thisPc = pc;
   const callWire = wireCallConnectionState(pc, {
-    onConnected: () => { if (pc === thisPc) $('call-status').innerText = 'Connected'; },
+    onConnected: () => { if (pc === thisPc) { $('call-status').innerText = 'Connected'; if (callLog && !callLog.connectedAt) callLog.connectedAt = Date.now(); } },
     onFailed: (reason) => {
       if (pc !== thisPc) return;
       showToast(reason);
@@ -2755,6 +3171,7 @@ async function startCall(type) {
       $('call-status').innerText = 'Connecting...';
       callWire.armTimeout();
     }
+    if (data.status === 'declined' && callLog) callLog.outcome = 'declined';
     if (data.status === 'declined' || data.status === 'ended') endCall(false);
   });
 
@@ -2775,6 +3192,7 @@ async function acceptCall(data) {
   $('incoming-call-toast').classList.remove('show');
   currentCallId = data.callId;
   currentCallRole = 'callee';
+  callLog = { peerUid: data.fromUid, peerName: data.fromUsername || 'Unknown', direction: 'in', type: data.type, startedAt: Date.now(), connectedAt: null, outcome: null };
 
   localStream = await acquireCallMedia(data.type);
 
@@ -2787,7 +3205,7 @@ async function acceptCall(data) {
 
   const thisPc = pc;
   const callWire = wireCallConnectionState(pc, {
-    onConnected: () => { if (pc === thisPc) $('call-status').innerText = 'Connected'; },
+    onConnected: () => { if (pc === thisPc) { $('call-status').innerText = 'Connected'; if (callLog && !callLog.connectedAt) callLog.connectedAt = Date.now(); } },
     onFailed: (reason) => {
       if (pc !== thisPc) return;
       showToast(reason);
@@ -2874,6 +3292,7 @@ document.addEventListener('click', (e) => {
 $('end-call-btn').onclick = () => groupCallId ? endGroupCall() : endCall(true);
 
 async function endCall(notify) {
+  finalizeCallLog();
   if (currentCallId && notify) {
     await update(ref(db, 'calls/' + currentCallId), { status: 'ended' }).catch(()=>{});
     if (currentCallRole === 'caller' && currentCallPeerUid) {
