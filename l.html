@@ -3,33 +3,49 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mintlow's Messenger</title>
+<title>Minty Messenger</title>
+<meta name="theme-color" content="#0f2e26">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%2064%2064%27%3E%3Crect%20width=%2764%27%20height=%2764%27%20rx=%2716%27%20fill=%27%230f2e26%27/%3E%3Cpath%20d=%27M50%2014C28%2013%2014%2024%2014%2041c0%205%202%208%205%2010%202-10%208-18%2018-23-7%206-12%2014-14%2024%203%201%207%201%2010%200%2013-3%2020-16%2017-38z%27%20fill=%27%239ff2c7%27/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=DM+Sans:wght@400;500;600;700&display=swap">
 <style>
   :root{
-    --bg:#0f1115;
-    --panel:#161923;
-    --panel-2:#1d212e;
-    --border:#272c3a;
-    --text:#eef0f5;
-    --text-dim:#8b91a5;
-    --accent:#5b8cff;
-    --accent-2:#8a5bff;
-    --danger:#ff5b6e;
-    --success:#37d18c;
-    --bubble-out:linear-gradient(135deg,#5b8cff,#8a5bff);
-    --bubble-in:#232838;
+    --bg:#0a211b;
+    --panel:#0f2e26;
+    --panel-2:#174238;
+    --chrome:#153a31;
+    --border:#23493c;
+    --text:#e9fff5;
+    --text-dim:#92aba2;
+    --accent:#9ff2c7;
+    --accent-2:#6ee0b0;
+    --on-accent:#0a211b;
+    --danger:#ff9b8f;
+    --success:#6ee0b0;
+    --bubble-out:linear-gradient(135deg,#9ff2c7,#6ee0b0);
+    --bubble-in:#174238;
     --radius:14px;
-    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif;
+    --font: "DM Sans", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-display: "Fredoka", "DM Sans", system-ui, sans-serif;
   }
   [data-theme="light"]{
-    --bg:#eef0f5;
+    --bg:#e8f6ef;
     --panel:#ffffff;
-    --panel-2:#f5f6fa;
-    --border:#e1e4ee;
-    --text:#1b1d27;
-    --text-dim:#6b7086;
-    --bubble-in:#eef0f5;
+    --panel-2:#f1fbf6;
+    --chrome:#dff2e8;
+    --border:#cde6da;
+    --text:#0f2e26;
+    --text-dim:#4d7266;
+    --accent:#1c8a62;
+    --accent-2:#2fb383;
+    --on-accent:#ffffff;
+    --danger:#d9534a;
+    --success:#1c8a62;
+    --bubble-out:linear-gradient(135deg,#1c8a62,#2fb383);
+    --bubble-in:#e3f3ea;
   }
+  h1,h2,h3,.brand-name,.app-brand-strip{font-family:var(--font-display);}
   *{box-sizing:border-box;margin:0;padding:0;}
   body{
     font-family:var(--font);
@@ -41,7 +57,7 @@
   }
   button{font-family:inherit;cursor:pointer;}
   input,textarea{font-family:inherit;}
-  ::selection{background:var(--accent);color:#fff;}
+  ::selection{background:var(--accent);color:var(--on-accent);}
 
   /* ---------- Auth ---------- */
   #auth-screen{
@@ -50,8 +66,8 @@
     align-items:center;
     justify-content:center;
     background:
-      radial-gradient(circle at 15% 20%, rgba(91,140,255,.18), transparent 40%),
-      radial-gradient(circle at 85% 80%, rgba(138,91,255,.18), transparent 40%),
+      radial-gradient(circle at 15% 20%, rgba(159,242,199,.14), transparent 40%),
+      radial-gradient(circle at 85% 80%, rgba(110,224,176,.12), transparent 40%),
       var(--bg);
   }
   .auth-card{
@@ -64,12 +80,9 @@
     box-shadow:0 20px 60px rgba(0,0,0,.35);
   }
   .auth-logo{
-    width:44px;height:44px;border-radius:12px;
-    background:var(--bubble-out);
-    display:flex;align-items:center;justify-content:center;
-    font-weight:700;color:#fff;font-size:20px;margin-bottom:18px;
+    display:block;width:56px;height:56px;border-radius:14px;margin-bottom:18px;
   }
-  .brand-name{font-size:13px;font-weight:700;letter-spacing:.3px;color:var(--accent);margin-bottom:14px;}
+  .brand-name{font-size:15px;font-weight:600;letter-spacing:.2px;color:var(--accent);margin-bottom:14px;}
   .auth-card h1{font-size:22px;font-weight:600;margin-bottom:4px;}
   .auth-card p.sub{color:var(--text-dim);font-size:13.5px;margin-bottom:22px;}
   .field{margin-bottom:12px;}
@@ -83,7 +96,7 @@
   .field input:focus{border-color:var(--accent);}
   .primary-btn{
     width:100%;padding:12px;border:none;border-radius:10px;
-    background:var(--bubble-out);color:#fff;font-weight:600;font-size:14.5px;
+    background:var(--bubble-out);color:var(--on-accent);font-weight:600;font-size:14.5px;
     margin-top:6px;transition:opacity .15s, transform .1s;
   }
   .primary-btn:hover{opacity:.92;}
@@ -114,13 +127,11 @@
   }
   .app-brand-strip{
     display:flex;align-items:center;gap:8px;padding:12px 16px 10px;
-    font-weight:700;font-size:13.5px;letter-spacing:.2px;color:var(--text);
+    font-weight:600;font-size:15px;letter-spacing:.2px;color:var(--text);
     border-bottom:1px solid var(--border);
   }
   .app-brand-mark{
-    width:24px;height:24px;border-radius:7px;background:var(--bubble-out);
-    color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;
-    flex-shrink:0;
+    width:26px;height:26px;border-radius:7px;display:block;flex-shrink:0;
   }
   .sidebar-top{
     padding:16px;display:flex;align-items:center;gap:10px;
@@ -154,7 +165,7 @@
     background:var(--accent);border-radius:2px;
   }
   .tab .badge{
-    background:var(--danger);color:#fff;font-size:10px;border-radius:8px;
+    background:var(--danger);color:var(--on-accent);font-size:10px;border-radius:8px;
     padding:1px 5px;margin-left:4px;
   }
 
@@ -193,7 +204,7 @@
   .accept-btn{background:var(--success);color:#08201a;}
   .decline-btn{background:var(--panel-2);color:var(--text-dim);border:1px solid var(--border) !important;}
   .add-btn{
-    background:var(--accent);color:#fff;border:none;border-radius:8px;
+    background:var(--accent);color:var(--on-accent);border:none;border-radius:8px;
     padding:6px 12px;font-size:11.5px;font-weight:600;
   }
   .add-btn:disabled{background:var(--panel-2);color:var(--text-dim);}
@@ -230,10 +241,12 @@
     padding:9px 13px;border-radius:16px;font-size:14px;line-height:1.4;
     word-break:break-word;
   }
-  .bubble-row.out .bubble{background:var(--bubble-out);color:#fff;border-bottom-right-radius:5px;}
+  .bubble-row.out .bubble{background:var(--bubble-out);color:var(--on-accent);border-bottom-right-radius:5px;}
   .bubble-row.in .bubble{background:var(--bubble-in);color:var(--text);border-bottom-left-radius:5px;}
   .bubble img, .bubble video{max-width:260px;border-radius:12px;display:block;}
   .msg-time{font-size:10px;color:var(--text-dim);margin-top:3px;padding:0 4px;}
+  .bubble img.fb-pending{min-width:160px;min-height:120px;background:var(--panel-2);}
+  .bubble img.fb-missing{min-width:160px;min-height:60px;background:var(--panel-2);color:var(--text-dim);font-size:12px;}
   .history-note{
     align-self:center;font-size:11px;color:var(--text-dim);padding:4px 10px;
   }
@@ -252,7 +265,7 @@
   .composer textarea:focus{border-color:var(--accent);}
   .send-btn{
     width:40px;height:40px;border-radius:50%;border:none;background:var(--bubble-out);
-    color:#fff;font-size:16px;flex-shrink:0;
+    color:var(--on-accent);font-size:16px;flex-shrink:0;
   }
   .send-btn:disabled{opacity:.4;}
   .emoji-panel{
@@ -298,7 +311,7 @@
     padding:8px 20px;font-size:12.5px;display:flex;align-items:center;gap:10px;color:var(--text);
   }
   .group-call-banner button{
-    background:var(--accent);color:#fff;border:none;border-radius:8px;padding:4px 12px;font-size:12px;font-weight:600;
+    background:var(--accent);color:var(--on-accent);border:none;border-radius:8px;padding:4px 12px;font-size:12px;font-weight:600;
   }
   .group-member-row{display:flex;align-items:center;gap:8px;padding:6px 4px;cursor:pointer;}
   .group-manage-member-row{
@@ -309,11 +322,11 @@
     background:none;border:1px solid var(--border);color:var(--danger);
     border-radius:8px;padding:4px 10px;font-size:11.5px;font-weight:600;flex-shrink:0;
   }
-  .kick-btn:hover{background:var(--danger);color:#fff;}
+  .kick-btn:hover{background:var(--danger);color:var(--on-accent);}
   .admin-user-row{
     display:flex;align-items:center;gap:10px;padding:8px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;
   }
-  .admin-user-row button{border:none;border-radius:8px;padding:6px 11px;font-size:11.5px;font-weight:600;color:#fff;}
+  .admin-user-row button{border:none;border-radius:8px;padding:6px 11px;font-size:11.5px;font-weight:600;color:var(--on-accent);}
 
   /* Message hover actions + reactions */
   .bubble-row{position:relative;}
@@ -435,8 +448,8 @@
 <!-- ============ AUTH SCREEN ============ -->
 <div id="auth-screen">
   <div class="auth-card">
-    <div class="auth-logo">M</div>
-    <div class="brand-name">Mintlow's Messenger</div>
+    <img class="auth-logo" src="data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%2064%2064%27%3E%3Crect%20width=%2764%27%20height=%2764%27%20rx=%2716%27%20fill=%27%230f2e26%27/%3E%3Cpath%20d=%27M50%2014C28%2013%2014%2024%2014%2041c0%205%202%208%205%2010%202-10%208-18%2018-23-7%206-12%2014-14%2024%203%201%207%201%2010%200%2013-3%2020-16%2017-38z%27%20fill=%27%239ff2c7%27/%3E%3C/svg%3E" alt="Minty Messenger logo">
+    <div class="brand-name">Minty Messenger</div>
     <h1 id="auth-title">Welcome back</h1>
     <p class="sub" id="auth-sub">Log in to keep chatting.</p>
 
@@ -465,8 +478,8 @@
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
       <div class="app-brand-strip">
-        <span class="app-brand-mark">M</span>
-        <span>Mintlow's Messenger</span>
+        <img class="app-brand-mark" src="data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%2064%2064%27%3E%3Crect%20width=%2764%27%20height=%2764%27%20rx=%2716%27%20fill=%27%230f2e26%27/%3E%3Cpath%20d=%27M50%2014C28%2013%2014%2024%2014%2041c0%205%202%208%205%2010%202-10%208-18%2018-23-7%206-12%2014-14%2024%203%201%207%201%2010%200%2013-3%2020-16%2017-38z%27%20fill=%27%239ff2c7%27/%3E%3C/svg%3E" alt="">
+        <span>Minty Messenger</span>
       </div>
       <div class="sidebar-top">
         <img class="avatar" id="my-avatar" src="" alt="">
@@ -753,8 +766,6 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
-// --- Cloudinary (used instead of Firebase Storage to avoid cross-origin upload issues) ---
-// Fill these in with your own Cloudinary cloud name and UNSIGNED upload preset.
 const CLOUDINARY_CLOUD_NAME = 'xayz2dka';
 const CLOUDINARY_UPLOAD_PRESET = 'preset';
 
@@ -775,7 +786,6 @@ async function uploadToCloudinary(file, resourceType) {
   return data.secure_url;
 }
 
-/* ---------------- State ---------------- */
 let currentUser = null;
 let myProfile = null;
 let isSignUp = false;
@@ -783,25 +793,22 @@ let appEntered = false;
 let activeTab = 'chats';
 let openChatUid = null;
 let openChatId = null;
-let openChatKind = 'dm'; // 'dm' | 'group'
+let openChatKind = 'dm';
 let messagesUnsub = null;
 let typingUnsub = null;
 let readsUnsub = null;
-let chatReads = {}; // uid -> last-read timestamp, for the currently open chat
+let chatReads = {};
 let friendsCache = {};
 let pendingImageDataUrl = null;
 
-// Group chats
-let groupsCache = {};        // groupId -> { name, photoURL, memberUids, createdBy, createdAt }
-let userGroupsCache = {};    // groupId -> { lastMessagePreview, lastTimestamp, lastSenderUid }
+let groupsCache = {};
+let userGroupsCache = {};
 let knownGroupIds = new Set();
-let openGroupMembersForChat = null; // uid -> profile, for the currently open group
+let openGroupMembersForChat = null;
 
-// Moderation
 const ADMIN_USERNAME_LOWER = 'mintlow';
 let isAdmin = false;
 
-/* ---------------- Helpers ---------------- */
 const $ = (id) => document.getElementById(id);
 function basePathFor(kind, id) { return kind === 'group' ? `groupChats/${id}` : `chats/${id}`; }
 function chatIdFor(a, b) { return [a, b].sort().join('_'); }
@@ -813,7 +820,7 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 3000);
 }
 function defaultAvatar(seed) {
-  const colors = ['5b8cff','8a5bff','37d18c','ff9f5b','ff5b6e','5bd1c8'];
+  const colors = ['1c8a62','2fb383','157a63','3a9d8a','0f6e5a','4aa37a'];
   const c = colors[Math.abs(hashCode(seed || 'x')) % colors.length];
   return `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(seed||'?')}&backgroundColor=${c}`;
 }
@@ -824,8 +831,107 @@ function formatTime(ts){
   return d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
 }
 
-/* ---------------- Notifications, sound, unread badge ---------------- */
-const APP_TITLE = "Mintlow's Messenger";
+const FBIMG_PREFIX = 'fbimg:';
+const BLANK_PIXEL = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+
+function readAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result);
+    r.onerror = () => reject(new Error('Could not read that file.'));
+    r.readAsDataURL(file);
+  });
+}
+
+async function loadImageSource(file) {
+  if ('createImageBitmap' in window) {
+    try { return await createImageBitmap(file, { imageOrientation: 'from-image' }); } catch (e) { }
+  }
+  return await new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Could not read that image.')); };
+    img.src = url;
+  });
+}
+
+async function compressImageToDataUrl(file, { maxDim = 1280, quality = 0.82, maxChars = 450000, allowAnimatedGif = true } = {}) {
+  if (file.type === 'image/gif' && allowAnimatedGif) {
+    if (file.size <= 600 * 1024) return await readAsDataUrl(file);
+    throw new Error("GIFs over 600 KB can't be uploaded here — use the GIF button instead.");
+  }
+  const src = await loadImageSource(file);
+  const sw = src.naturalWidth || src.width;
+  const sh = src.naturalHeight || src.height;
+  let dim = maxDim, q = quality;
+  for (let attempt = 0; attempt < 8; attempt++) {
+    const scale = Math.min(1, dim / Math.max(sw, sh));
+    const w = Math.max(1, Math.round(sw * scale));
+    const h = Math.max(1, Math.round(sh * scale));
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, w, h);
+    ctx.drawImage(src, 0, 0, w, h);
+    const dataUrl = canvas.toDataURL('image/jpeg', q);
+    if (dataUrl.length <= maxChars) { if (src.close) src.close(); return dataUrl; }
+    if (q > 0.55) q -= 0.1; else dim = Math.round(dim * 0.8);
+  }
+  throw new Error('That image is too large to shrink enough.');
+}
+
+function uploadErrorMessage(err) {
+  const msg = (err && err.message) || 'unknown error';
+  return /permission/i.test(msg)
+    ? msg + " — add the 'images' rules to your Firebase Realtime Database rules."
+    : msg;
+}
+
+async function uploadChatImage(file) {
+  const dataUrl = await compressImageToDataUrl(file);
+  const imgRef = push(ref(db, 'images'));
+  await set(imgRef, { data: dataUrl, uid: currentUser.uid, createdAt: Date.now() });
+  return FBIMG_PREFIX + imgRef.key;
+}
+
+const fbImageCache = new Map();
+const FBIMG_CACHE_MAX = 60;
+function fetchFirebaseImage(id) {
+  if (fbImageCache.has(id)) return fbImageCache.get(id);
+  const p = get(ref(db, `images/${id}/data`))
+    .then(snap => (snap.exists() ? snap.val() : null))
+    .catch(err => { console.error('Could not load photo', err); return null; });
+  fbImageCache.set(id, p);
+  p.then(v => { if (v === null) fbImageCache.delete(id); });
+  if (fbImageCache.size > FBIMG_CACHE_MAX) fbImageCache.delete(fbImageCache.keys().next().value);
+  return p;
+}
+
+let imgObserver = null;
+function observeFirebaseImage(img, id) {
+  img.src = BLANK_PIXEL;
+  img.dataset.fbimg = id;
+  img.classList.add('fb-pending');
+  if (!imgObserver) {
+    imgObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const el = entry.target;
+        imgObserver.unobserve(el);
+        fetchFirebaseImage(el.dataset.fbimg).then(data => {
+          el.classList.remove('fb-pending');
+          if (data) el.src = data;
+          else { el.classList.add('fb-missing'); el.alt = 'Photo unavailable'; }
+        });
+      });
+    }, { root: $('messages'), rootMargin: '300px 0px' });
+  }
+  imgObserver.observe(img);
+}
+
+const APP_TITLE = "Minty Messenger";
 let unreadCount = 0;
 
 function bumpUnread() {
@@ -844,7 +950,7 @@ function notifyUser(title, body, icon) {
   try {
     const n = new Notification(title, { body, icon: icon || undefined });
     n.onclick = () => { window.focus(); n.close(); };
-  } catch (e) { /* ignore */ }
+  } catch (e) { }
 }
 
 function playPing() {
@@ -859,7 +965,7 @@ function playPing() {
     o.start();
     g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
     o.stop(ctx.currentTime + 0.35);
-  } catch (e) { /* ignore */ }
+  } catch (e) { }
 }
 
 $('notif-btn').onclick = async () => {
@@ -868,7 +974,6 @@ $('notif-btn').onclick = async () => {
   showToast(perm === 'granted' ? 'Notifications enabled!' : 'Notifications are blocked for this site.');
 };
 
-/* ---------------- Auth screen ---------------- */
 $('auth-toggle-btn').onclick = () => {
   isSignUp = !isSignUp;
   $('auth-title').innerText = isSignUp ? 'Create your account' : 'Welcome back';
@@ -925,7 +1030,6 @@ $('auth-submit-btn').onclick = async () => {
         appEntered = true;
         await enterApp(cred.user, snap.val());
       }
-      // if the profile isn't there yet for some reason, onAuthStateChanged below will retry
     }
   } catch (e) {
     errEl.innerText = e.message.replace('Firebase: ', '');
@@ -940,7 +1044,6 @@ $('logout-btn').onclick = async () => {
   signOut(auth);
 };
 
-/* ---------------- Enter app / auth state ---------------- */
 let presenceInitialized = false;
 function setupPresence(uid) {
   if (presenceInitialized) return;
@@ -948,23 +1051,18 @@ function setupPresence(uid) {
   const myStatusRef = ref(db, 'users/' + uid);
   onValue(ref(db, '.info/connected'), (snap) => {
     if (snap.val() !== true) return;
-    // Re-registering onDisconnect every time we (re)connect is the part
-    // that's easy to miss — without it, presence only survives the very
-    // first connection of the session.
     onDisconnect(myStatusRef).update({ online: false, lastSeen: serverTimestamp() })
       .then(() => update(myStatusRef, { online: true }));
   });
 }
 
 async function enterApp(user, profile) {
-  // Moderation gate #1: banned accounts are signed out immediately.
   if (profile.banned) {
     await signOut(auth);
     appEntered = false;
-    $('auth-error').innerText = "This account has been banned from Mintlow's Messenger.";
+    $('auth-error').innerText = "This account has been banned from Minty Messenger.";
     return;
   }
-  // Moderation gate #2: a moderator can force a username change before the account can proceed.
   if (profile.forceUsernameReset) {
     appEntered = false;
     $('auth-screen').style.display = 'none';
@@ -984,11 +1082,6 @@ async function enterApp(user, profile) {
   $('my-name').innerText = myProfile.username;
   $('my-username-display').innerText = '@' + myProfile.usernameLower;
 
-  // presence — re-armed on every (re)connect. Firebase only fires a
-  // registered onDisconnect hook once; after any reconnect (sleep/wake,
-  // a wifi blip, a backgrounded tab resuming) that hook is gone, so
-  // without re-registering it here, a user's "online" status can get
-  // stuck forever the next time they actually go offline.
   setupPresence(user.uid);
 
   listenFriends();
@@ -998,8 +1091,6 @@ async function enterApp(user, profile) {
   listenIncomingCalls();
   loadIceServers();
 
-  // Best-effort: some browsers allow this since it's still close to the login click's
-  // user gesture. If blocked, the 🔔 button lets the person grant it manually.
   if ('Notification' in window && Notification.permission === 'default') {
     Notification.requestPermission().catch(() => {});
   }
@@ -1032,9 +1123,7 @@ function showForceUsernameModal(user, profile) {
 
 onAuthStateChanged(auth, async (user) => {
   if (user) {
-    if (appEntered) return; // already handled directly by the login/signup click above
-    // Covers page refresh / any case where the click handler didn't finish the job.
-    // Profile write can lag slightly behind auth creation, so retry briefly instead of giving up.
+    if (appEntered) return;
     let snap = await get(ref(db, 'users/' + user.uid));
     let tries = 0;
     while (!snap.exists() && tries < 15) {
@@ -1055,7 +1144,6 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
-/* ---------------- Tabs ---------------- */
 document.querySelectorAll('.tab').forEach(tab => {
   tab.onclick = () => {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -1067,15 +1155,13 @@ document.querySelectorAll('.tab').forEach(tab => {
   };
 });
 
-/* ---------------- Friends / requests / search ---------------- */
-let friendProfileUnsubs = {}; // uid -> unsubscribe fn, keeps friend status live
+let friendProfileUnsubs = {};
 function listenFriends() {
   const friendsRef = ref(db, 'friends/' + currentUser.uid);
   onValue(friendsRef, (snap) => {
     const uids = snap.exists() ? Object.keys(snap.val()) : [];
     const uidSet = new Set(uids);
 
-    // Stop listening to anyone who's no longer a friend.
     Object.keys(friendProfileUnsubs).forEach(uid => {
       if (!uidSet.has(uid)) {
         friendProfileUnsubs[uid]();
@@ -1084,9 +1170,6 @@ function listenFriends() {
       }
     });
 
-    // A live listener per friend (rather than a one-time fetch) is what
-    // makes their online/offline dot actually update in real time instead
-    // of only refreshing whenever your friends list itself changes.
     uids.forEach(uid => {
       if (friendProfileUnsubs[uid]) return;
       friendProfileUnsubs[uid] = onValue(ref(db, 'users/' + uid), (uSnap) => {
@@ -1243,7 +1326,6 @@ async function runFindSearch() {
   });
 }
 
-/* ---------------- Chats list ---------------- */
 let userChatsCache = {};
 let previousUserChats = {};
 let chatsListenerInitialized = false;
@@ -1262,7 +1344,7 @@ function listenChats() {
             const friend = friendsCache[info.withUid];
             playPing();
             notifyUser(
-              (friend ? friend.username : 'New message') + " — Mintlow's Messenger",
+              (friend ? friend.username : 'New message') + " — Minty Messenger",
               info.lastMessagePreview || 'Sent you a message',
               friend ? friend.photoURL : undefined
             );
@@ -1298,7 +1380,7 @@ function listenGroups() {
             const g = groupsCache[gid];
             playPing();
             notifyUser(
-              (g ? '👥 ' + g.name : 'New group message') + " — Mintlow's Messenger",
+              (g ? '👥 ' + g.name : 'New group message') + " — Minty Messenger",
               info.lastMessagePreview || 'New message',
               g ? g.photoURL : undefined
             );
@@ -1312,7 +1394,6 @@ function listenGroups() {
     previousUserGroups = newData;
     userGroupsCache = newData;
 
-    // Stop tracking groups we're no longer in.
     knownGroupIds.forEach(gid => {
       if (!currentIds.has(gid)) {
         off(ref(db, 'groups/' + gid));
@@ -1325,7 +1406,6 @@ function listenGroups() {
       }
     });
 
-    // Start tracking newly-seen groups.
     currentIds.forEach(gid => {
       if (!knownGroupIds.has(gid)) {
         knownGroupIds.add(gid);
@@ -1395,7 +1475,6 @@ function renderChatsList() {
   });
 }
 
-/* ---------------- Group creation ---------------- */
 $('new-group-btn').onclick = () => {
   const picker = $('group-friend-picker');
   picker.innerHTML = '';
@@ -1431,10 +1510,6 @@ $('group-create-btn').onclick = async () => {
   const groupId = groupRef.key;
   const now = Date.now();
 
-  // One atomic multi-path update instead of a sequential per-member loop:
-  // either everyone's membership index gets written together, or none of
-  // it does — no more "it worked for me but not for the people I invited"
-  // if a single write in the middle fails.
   const updates = {
     [`groups/${groupId}`]: { name, photoURL: null, createdBy: currentUser.uid, memberUids, createdAt: now }
   };
@@ -1456,7 +1531,6 @@ $('group-create-btn').onclick = async () => {
   }
 };
 
-/* ---------------- Chat window ---------------- */
 function closeOpenChat() {
   detachChatListeners();
   chatSession++;
@@ -1519,7 +1593,6 @@ function openChat(uid, u) {
     }
   });
 
-  // keep header status live
   onValue(ref(db, 'users/' + uid), (snap) => {
     if (!snap.exists() || openChatUid !== uid) return;
     const uu = snap.val();
@@ -1550,7 +1623,6 @@ async function openGroupChat(groupId, group) {
   resetMessageView();
   renderChatsList();
 
-  // Cache member profiles for sender labels on group messages.
   openGroupMembersForChat = {};
   const memberUids = Object.keys(group.memberUids || {});
   for (const uid of memberUids) {
@@ -1559,7 +1631,6 @@ async function openGroupChat(groupId, group) {
     const s = await get(ref(db, 'users/' + uid));
     if (s.exists()) openGroupMembersForChat[uid] = s.val();
   }
-  // The person may have switched chats while member profiles were loading.
   if (token !== chatSession) return;
 
   chatBasePath = `groupChats/${groupId}`;
@@ -1587,7 +1658,6 @@ async function openGroupChat(groupId, group) {
     }
   });
 
-  // Show a banner if a group call is already in progress.
   onValue(ref(db, `groupCalls/${groupId}/participants`), (snap) => {
     if (openChatId !== groupId || openChatKind !== 'group') return;
     const participants = snap.exists() ? snap.val() : {};
@@ -1613,7 +1683,6 @@ $('leave-group-btn').onclick = async () => {
   closeOpenChat();
 };
 
-/* ---------------- Group management (add / kick members) ---------------- */
 $('manage-group-btn').onclick = () => {
   if (openChatKind !== 'group' || !openChatId) return;
   openGroupManageModal(openChatId);
@@ -1626,9 +1695,6 @@ async function openGroupManageModal(groupId) {
   const isCreator = group.createdBy === currentUser.uid;
   const memberUids = Object.keys(group.memberUids || {});
 
-  // Make sure we have a display profile for every current member — this
-  // matters right after adding someone, since they may not be in
-  // openGroupMembersForChat yet.
   if (!openGroupMembersForChat) openGroupMembersForChat = {};
   for (const uid of memberUids) {
     if (openGroupMembersForChat[uid]) continue;
@@ -1640,7 +1706,6 @@ async function openGroupManageModal(groupId) {
 
   $('group-manage-title').innerText = `${group.name} — ${memberUids.length} member${memberUids.length === 1 ? '' : 's'}`;
 
-  // Current members, with a Kick button when you're the creator (never on yourself).
   const memberList = $('group-manage-list');
   memberList.innerHTML = '';
   memberUids.forEach(uid => {
@@ -1663,7 +1728,6 @@ async function openGroupManageModal(groupId) {
     memberList.appendChild(row);
   });
 
-  // Anyone in the group can add more friends who aren't already members.
   const addPicker = $('group-add-picker');
   addPicker.innerHTML = '';
   const addableUids = Object.keys(friendsCache).filter(uid => !group.memberUids || !group.memberUids[uid]);
@@ -1688,14 +1752,12 @@ async function openGroupManageModal(groupId) {
 async function kickGroupMember(groupId, uid, username) {
   if (!confirm(`Remove ${username} from the group?`)) return;
   try {
-    // One atomic update so the member's own index and the group's roster
-    // stay in sync — never a state where they're removed from one but not the other.
     await update(ref(db), {
       [`groups/${groupId}/memberUids/${uid}`]: null,
       [`userGroups/${uid}/${groupId}`]: null
     });
     showToast(`${username} was removed from the group.`);
-    await openGroupManageModal(groupId); // refresh the modal in place
+    await openGroupManageModal(groupId);
   } catch (err) {
     console.error('Kick failed:', err);
     showToast('Could not remove that member: ' + (err.message || 'permission error'));
@@ -1721,7 +1783,7 @@ $('group-add-confirm-btn').onclick = async () => {
   try {
     await update(ref(db), updates);
     showToast('Added to the group.');
-    await openGroupManageModal(groupId); // refresh the modal in place
+    await openGroupManageModal(groupId);
   } catch (err) {
     console.error('Add member failed:', err);
     showToast('Could not add member(s): ' + (err.message || 'permission error'));
@@ -1749,17 +1811,11 @@ function updateMessageReactions(key, reactions) {
   if (reactionsRow) renderReactionPills(reactionsRow, reactions);
 }
 
-/* ---------------- Read receipts ("viewed") ---------------- */
-// Marks that the current user has seen everything in this chat up to now.
-// Stored as a single per-user timestamp under the chat/group, rather than
-// per message, so it stays cheap to read/write as the conversation grows.
 function markChatRead(basePath) {
   if (!currentUser) return;
   set(ref(db, `${basePath}/reads/${currentUser.uid}`), Date.now()).catch(() => {});
 }
 
-// If a chat is open but the tab was backgrounded when a message arrived,
-// it isn't really "viewed" yet — catch up once the tab is visible again.
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && openChatId) {
     markChatRead(basePathFor(openChatKind, openChatId));
@@ -1772,8 +1828,6 @@ function formatSeenNames(names) {
   return `${names.slice(0, -1).join(', ')}, and ${names[names.length - 1]} viewed`;
 }
 
-// Shows "X viewed" / "X, Y, and Z viewed" under the most recent message
-// *you* sent, listing whoever has read at least that far.
 function renderSeenLine() {
   const container = $('messages');
   container.querySelectorAll('.seen-line').forEach(el => el.remove());
@@ -1801,22 +1855,17 @@ function renderSeenLine() {
   lastOutRow.appendChild(line);
 }
 
-/* ---------------- Message history (loads in pages as you scroll up) ----------------
-   Only the newest PAGE_SIZE messages are downloaded when a chat opens. Scrolling
-   near the top fetches the next older page and prepends it, so long chats stay
-   fast and light on memory instead of loading everything at once. Queries are
-   ordered by key (push IDs are chronological), which needs no database index. */
 const PAGE_SIZE = 30;
-let chatSession = 0;          // bumps whenever a chat is opened/closed, so stale async results are dropped
-let chatBasePath = null;      // 'chats/<id>' or 'groupChats/<id>' for the open chat
+let chatSession = 0;
+let chatBasePath = null;
 let oldestLoadedKey = null;
 let hasMoreOlder = false;
 let loadingOlder = false;
-let stickBottom = true;       // true while the view is at/near the bottom
-let chatLiveUnsubs = [];      // listener for brand-new messages
-let chatEditUnsubs = [];      // listeners for reactions/deletions on loaded messages
-let lastDay = null;           // day of the newest rendered message
-let oldestDay = null;         // day of the oldest rendered message
+let stickBottom = true;
+let chatLiveUnsubs = [];
+let chatEditUnsubs = [];
+let lastDay = null;
+let oldestDay = null;
 
 function detachChatListeners() {
   [...chatLiveUnsubs, ...chatEditUnsubs].forEach(fn => { try { fn(); } catch (e) {} });
@@ -1853,8 +1902,6 @@ function makeDaySep(day) {
   return sep;
 }
 
-// Reactions and deletions only need watching for messages that are on screen,
-// so this re-attaches from the oldest loaded message each time a page loads.
 function attachEditListeners(basePath, token) {
   chatEditUnsubs.forEach(fn => { try { fn(); } catch (e) {} });
   chatEditUnsubs = [];
@@ -1897,7 +1944,6 @@ async function startMessageHistory(basePath, membersMap, token) {
   stickBottom = true;
   container.scrollTop = container.scrollHeight;
 
-  // New messages: everything after the newest one already shown.
   const addedQuery = newestKey
     ? query(msgsRef, orderByKey(), startAfter(newestKey))
     : query(msgsRef, orderByKey());
@@ -1910,8 +1956,6 @@ async function startMessageHistory(basePath, membersMap, token) {
   }));
   attachEditListeners(basePath, token);
 
-  // On tall screens the first page might not fill the view (no scrollbar, so
-  // no scroll event) — keep fetching until it does or history runs out.
   fillViewport(token);
 }
 
@@ -1950,8 +1994,6 @@ async function loadOlderMessages() {
         if (day !== prevDay) { frag.appendChild(makeDaySep(day)); prevDay = day; }
         frag.appendChild(buildMessageRow(msg, key, basePath, membersMap));
       }
-      // If the newest of these is from the same day as the oldest message already
-      // shown, drop the old separator so that day isn't labelled twice.
       if (prevDay === oldestDay) {
         const firstSep = container.querySelector('.day-sep');
         if (firstSep) firstSep.remove();
@@ -1960,7 +2002,6 @@ async function loadOlderMessages() {
       container.insertBefore(frag, note ? note.nextSibling : container.firstChild);
       oldestDay = new Date(items[0][1].timestamp).toDateString();
       oldestLoadedKey = items[0][0];
-      // Keep the message you were looking at in the same place on screen.
       container.scrollTop = prevTop + (container.scrollHeight - prevHeight);
       attachEditListeners(basePath, token);
     }
@@ -1983,7 +2024,7 @@ $('messages').addEventListener('scroll', () => {
 
 function appendMessage(msg, key, basePath, membersMap) {
   const container = $('messages');
-  if (key && container.querySelector(`.bubble-row[data-msg-key="${key}"]`)) return; // already shown
+  if (key && container.querySelector(`.bubble-row[data-msg-key="${key}"]`)) return;
   const wasNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 150;
   const day = new Date(msg.timestamp).toDateString();
   if (day !== lastDay) {
@@ -1992,7 +2033,6 @@ function appendMessage(msg, key, basePath, membersMap) {
   }
   if (oldestDay === null) oldestDay = day;
   container.appendChild(buildMessageRow(msg, key, basePath, membersMap));
-  // Don't yank someone down to the bottom while they're reading older messages.
   if (wasNearBottom || msg.senderUid === currentUser.uid) container.scrollTop = container.scrollHeight;
   renderSeenLine();
 }
@@ -2004,7 +2044,6 @@ function buildMessageRow(msg, key, basePath, membersMap) {
   if (key) row.dataset.msgKey = key;
   if (msg.timestamp) row.dataset.timestamp = msg.timestamp;
 
-  // Group chats: label who sent each incoming message.
   if (membersMap && !isOut) {
     const sender = membersMap[msg.senderUid];
     const label = document.createElement('div');
@@ -2013,7 +2052,6 @@ function buildMessageRow(msg, key, basePath, membersMap) {
     row.appendChild(label);
   }
 
-  // Hover actions: react (everyone), delete (own messages, or any message if you're a moderator)
   const actions = document.createElement('div');
   actions.className = 'msg-actions';
   const reactBtn = document.createElement('button');
@@ -2036,6 +2074,9 @@ function buildMessageRow(msg, key, basePath, membersMap) {
       if (!confirm('Delete this message? This removes it for everyone.')) return;
       try {
         await remove(ref(db, `${basePath}/messages/${key}`));
+        if (typeof msg.content === 'string' && msg.content.startsWith(FBIMG_PREFIX)) {
+          remove(ref(db, 'images/' + msg.content.slice(FBIMG_PREFIX.length))).catch(() => {});
+        }
       } catch (err) {
         showToast('Could not delete message.');
       }
@@ -2055,7 +2096,7 @@ function buildMessageRow(msg, key, basePath, membersMap) {
       if (!key || !basePath) return;
       try {
         await set(ref(db, `${basePath}/messages/${key}/reactions/${currentUser.uid}`), e);
-      } catch (err) { /* ignore */ }
+      } catch (err) { }
     };
     picker.appendChild(span);
   });
@@ -2068,8 +2109,11 @@ function buildMessageRow(msg, key, basePath, membersMap) {
     bubble.innerText = msg.content;
   } else if (msg.type === 'image' || msg.type === 'gif') {
     const img = document.createElement('img');
-    img.src = msg.content;
-    // Images load after the row is added; keep the view pinned to the bottom if it was.
+    if (typeof msg.content === 'string' && msg.content.startsWith(FBIMG_PREFIX)) {
+      observeFirebaseImage(img, msg.content.slice(FBIMG_PREFIX.length));
+    } else {
+      img.src = msg.content;
+    }
     img.addEventListener('load', () => { if (stickBottom) { const c = $('messages'); c.scrollTop = c.scrollHeight; } });
     bubble.appendChild(img);
   } else if (msg.type === 'video') {
@@ -2159,7 +2203,6 @@ $('unfriend-btn').onclick = async () => {
   const other = openChatUid;
   await remove(ref(db, `friends/${currentUser.uid}/${other}`));
   await remove(ref(db, `friends/${other}/${currentUser.uid}`));
-  // Full cleanup so either side can send/receive a fresh request afterward.
   await remove(ref(db, `friendRequests/${currentUser.uid}/${other}`)).catch(()=>{});
   await remove(ref(db, `friendRequests/${other}/${currentUser.uid}`)).catch(()=>{});
   await remove(ref(db, `sentRequests/${currentUser.uid}/${other}`)).catch(()=>{});
@@ -2167,7 +2210,6 @@ $('unfriend-btn').onclick = async () => {
   closeOpenChat();
 };
 
-/* ---------------- Media sending ---------------- */
 $('image-btn').onclick = () => $('image-input').click();
 $('video-btn').onclick = () => $('video-input').click();
 
@@ -2176,11 +2218,11 @@ $('image-input').addEventListener('change', async (e) => {
   if (!file || !openChatId) return;
   showToast('Uploading photo...');
   try {
-    const url = await uploadToCloudinary(file, 'image');
+    const url = await uploadChatImage(file);
     sendChatMessage('image', url);
   } catch (err) {
     console.error('Image upload failed:', err);
-    showToast('Photo upload failed: ' + err.message);
+    showToast('Photo upload failed: ' + uploadErrorMessage(err));
   }
   e.target.value = '';
 });
@@ -2200,9 +2242,8 @@ $('video-input').addEventListener('change', async (e) => {
 });
 
 const GIPHY_API_KEY = 'XO7hGQbmN9CL4shNFJckITMQeUeEIhZn';
-const GIF_LIMIT = 25; // Number of GIFs to fetch per batch
+const GIF_LIMIT = 25;
 
-// Infinite scroll state tracking
 let currentOffset = 0;
 let totalGifsAvailable = 0;
 let isLoadingGifs = false;
@@ -2212,18 +2253,16 @@ let currentSearchTerm = '';
 $('gif-btn').onclick = () => {
   $('gif-modal').classList.add('show');
   $('gif-search-input').value = '';
-  
-  // Reset scroll position and state on open
+
   const resultsEl = $('gif-results');
   resultsEl.scrollTop = 0;
   resultsEl.innerHTML = '<div class="empty-state">Start typing to search for a GIF.</div>';
-  
+
   resetAndSearch(true, '');
 };
 
 $('gif-cancel-btn').onclick = () => $('gif-modal').classList.remove('show');
 
-// Input debounce for typing
 let gifSearchDebounce = null;
 $('gif-search-input').addEventListener('input', (e) => {
   clearTimeout(gifSearchDebounce);
@@ -2233,10 +2272,8 @@ $('gif-search-input').addEventListener('input', (e) => {
   }, 400);
 });
 
-// Setup infinite scroll trigger on container scroll
 const resultsContainer = $('gif-results');
 resultsContainer.addEventListener('scroll', () => {
-  // If user scrolled within 150px of the bottom, load the next batch
   const threshold = 150;
   const isNearBottom = resultsContainer.scrollHeight - resultsContainer.scrollTop - resultsContainer.clientHeight <= threshold;
 
@@ -2250,10 +2287,10 @@ function resetAndSearch(isTrending, term) {
   totalGifsAvailable = 0;
   isTrendingMode = isTrending;
   currentSearchTerm = term;
-  
+
   const resultsEl = $('gif-results');
   resultsEl.innerHTML = '<div class="empty-state">Searching...</div>';
-  
+
   fetchMoreGifs(true);
 }
 
@@ -2263,7 +2300,6 @@ async function fetchMoreGifs(isNewSearch = false) {
 
   const resultsEl = $('gif-results');
 
-  // Guard against empty search queries when not in trending mode
   if (!isTrendingMode && !currentSearchTerm) {
     resultsEl.innerHTML = '<div class="empty-state">Start typing to search for a GIF.</div>';
     isLoadingGifs = false;
@@ -2285,13 +2321,11 @@ async function fetchMoreGifs(isNewSearch = false) {
 
     const data = await resp.json();
     const items = data.data || [];
-    
-    // Update pagination metadata from GIPHY
+
     if (data.pagination) {
       totalGifsAvailable = data.pagination.total_count || 0;
     }
 
-    // If it's a fresh search, clear out old results/loading text
     if (isNewSearch) {
       resultsEl.innerHTML = '';
     }
@@ -2302,7 +2336,6 @@ async function fetchMoreGifs(isNewSearch = false) {
       return;
     }
 
-    // Append new GIFs to the existing container
     items.forEach(item => {
       const images = item.images || {};
       const fullUrl = images.original?.url || images.downsized_large?.url || '';
@@ -2321,7 +2354,6 @@ async function fetchMoreGifs(isNewSearch = false) {
       resultsEl.appendChild(img);
     });
 
-    // Advance offset for the next scroll page
     currentOffset += items.length;
 
   } catch (err) {
@@ -2342,7 +2374,6 @@ $('gif-send-url-btn').onclick = () => {
   $('gif-modal').classList.remove('show');
 };
 
-/* ---------------- Selfie / camera capture ---------------- */
 let cameraStream = null;
 let capturedSelfieBlob = null;
 
@@ -2404,15 +2435,14 @@ $('camera-send-btn').onclick = async () => {
   showToast('Sending photo...');
   try {
     const file = new File([capturedSelfieBlob], `selfie_${Date.now()}.png`, { type: 'image/png' });
-    const url = await uploadToCloudinary(file, 'image');
+    const url = await uploadChatImage(file);
     sendChatMessage('image', url);
   } catch (err) {
-    showToast('Send failed: ' + err.message);
+    showToast('Send failed: ' + uploadErrorMessage(err));
   }
   closeCameraModal();
 };
 
-/* Emoji picker */
 const EMOJIS = ['😀','😂','😍','😎','😭','😡','👍','👎','🙏','🎉','❤️','🔥','💯','😅','🤔','😴','👋','🙌','😢','😱','🥳','😇','🤝','👏','🍕','☕','🐶','🐱','🌟','⚡','✅','❌'];
 const emojiPanel = $('emoji-panel');
 EMOJIS.forEach(e => {
@@ -2429,7 +2459,6 @@ document.addEventListener('click', (e) => {
   }
 });
 
-/* ---------------- Profile modal ---------------- */
 $('profile-btn').onclick = () => {
   $('profile-modal-avatar').src = myProfile.photoURL || defaultAvatar(myProfile.username);
   $('profile-displayname').value = myProfile.username;
@@ -2443,12 +2472,12 @@ $('profile-pic-input').addEventListener('change', async (e) => {
   if (!file) return;
   showToast('Uploading photo...');
   try {
-    const url = await uploadToCloudinary(file, 'image');
+    const url = await compressImageToDataUrl(file, { maxDim: 192, quality: 0.8, maxChars: 60000, allowAnimatedGif: false });
     $('profile-modal-avatar').src = url;
     pendingImageDataUrl = url;
   } catch (err) {
     console.error('Profile photo upload failed:', err);
-    showToast('Photo upload failed: ' + err.message);
+    showToast('Photo upload failed: ' + uploadErrorMessage(err));
   }
 });
 $('profile-save-btn').onclick = async () => {
@@ -2466,7 +2495,6 @@ $('profile-save-btn').onclick = async () => {
   showToast('Profile updated.');
 };
 
-/* ---------------- Theme toggle ---------------- */
 $('theme-toggle').onclick = () => {
   const body = document.body;
   const next = body.dataset.theme === 'dark' ? 'light' : 'dark';
@@ -2474,41 +2502,14 @@ $('theme-toggle').onclick = () => {
   $('theme-toggle').innerText = next === 'dark' ? '🌙' : '☀️';
 };
 
-/* ---------------- Sidebar Mobile Toggle ---------------- */
 if ($('back-to-sidebar-btn')) {
   $('back-to-sidebar-btn').onclick = () => {
     $('sidebar').classList.remove('hide-mobile');
   };
 }
 
-/* =========================================================
-   WEBRTC CALLING
-   ========================================================= */
-// ---------------------------------------------------------------------------
-// ICE / TURN CONFIGURATION
-//
-// STUN only lets two browsers find each other when a direct path exists.
-// Across different networks (mobile data, strict NATs, school/work Wi-Fi) the
-// media has to be relayed by a TURN server, and TURN servers need credentials.
-// The old shared "openrelayproject" credentials no longer work — they are why
-// calls sat on "Connecting..." forever — so you need your own. Pick ONE:
-//
-//  A) Metered (free tier = 20 GB/month, no card needed):
-//       1. Sign up at https://www.metered.ca and create an app.
-//       2. Copy your credentials URL from the dashboard, it looks like:
-//          https://YOURAPP.metered.live/api/v1/turn/credentials?apiKey=YOURKEY
-//       3. Paste it into TURN_CREDENTIALS_URL below.
-//
-//  B) Any other TURN server (your own coturn, Twilio, Cloudflare Calls, ...):
-//       add entries to MANUAL_TURN_SERVERS below.
-//
-// To test relay-only mode without editing the file, open the page with
-// ?turnonly=1 on the end of the URL. Relay-only sends ALL media through TURN,
-// so only use it for testing.
-// ---------------------------------------------------------------------------
 const TURN_CREDENTIALS_URL = '';
 const MANUAL_TURN_SERVERS = [
-  // ExpressTURN free plan (long-term credentials from the ExpressTURN dashboard).
   { urls: 'turn:free.expressturn.com:3478', username: '000000002108265729', credential: 'U7hRwEKQeT9G0A4quKOfcdAE7I0=' },
   { urls: 'turn:free.expressturn.com:3478?transport=tcp', username: '000000002108265729', credential: 'U7hRwEKQeT9G0A4quKOfcdAE7I0=' },
 ];
@@ -2549,7 +2550,6 @@ function loadIceServers() {
   return iceServersReady;
 }
 
-// Call before starting/accepting any call. Returns false if the call should not proceed.
 async function prepareIce() {
   await loadIceServers();
   if (!turnConfigured) {
@@ -2563,18 +2563,6 @@ async function prepareIce() {
   return true;
 }
 
-// Ties call state to the peer connection's real ICE state instead of to
-// when signaling finishes. The offer/answer exchange always completes
-// quickly (it's just a small SDP text blob relayed through Firebase), but
-// the actual audio/video path depends on ICE/TURN succeeding — which is
-// exactly what can fail, stall, or take a while across two different
-// networks.
-//
-// It also reports WHY a connection is stuck: if ICE finishes gathering with
-// zero relay candidates, or the TURN server rejects/can't be reached, the
-// reason is surfaced right away instead of leaving the call on "Connecting..."
-// forever. Call .armTimeout() once the offer/answer exchange is done to also
-// give up after CALL_CONNECT_TIMEOUT_MS.
 function wireCallConnectionState(peerConn, { onConnected, onFailed } = {}) {
   let announcedConnected = false;
   let announcedFailure = false;
@@ -2638,18 +2626,17 @@ function wireCallConnectionState(peerConn, { onConnected, onFailed } = {}) {
 let pc = null;
 let localStream = null;
 let currentCallId = null;
-let currentCallRole = null; // 'caller' | 'callee'
-let currentCallPeerUid = null; // the other person in a 1:1 call, so a cancelled call can stop their phone ringing
+let currentCallRole = null;
+let currentCallPeerUid = null;
 let micOn = true, camOn = true;
 let callCandidateUnsub = null;
 let callDocUnsub = null;
 
-// Group (mesh) calling
 let groupCallId = null;
 let groupCallType = 'audio';
-let groupCallSessionId = null; // fresh id per call session, see startGroupCall
-let groupPeerConnections = {}; // otherUid -> RTCPeerConnection
-let groupUnsubFns = [];        // list of unsubscribe fns to clean up on end
+let groupCallSessionId = null;
+let groupPeerConnections = {};
+let groupUnsubFns = [];
 
 let lastNotifiedCallId = null;
 function listenIncomingCalls() {
@@ -2686,9 +2673,6 @@ function listenIncomingCalls() {
 $('voice-call-btn').onclick = () => openChatKind === 'group' ? startGroupCall('audio') : startCall('audio');
 $('video-call-btn').onclick = () => openChatKind === 'group' ? startGroupCall('video') : startCall('video');
 
-// Gets the microphone/camera for a call, but never blocks you from joining:
-// no camera (or it's denied) -> audio only; no mic either -> listen-only.
-// You can still SEE other people's video in those cases (see addReceiveOnlyIfNoLocalTracks).
 async function acquireCallMedia(type) {
   const wantVideo = type === 'video';
   try {
@@ -2711,9 +2695,6 @@ async function acquireCallMedia(type) {
 function localHasVideo() {
   return !!localStream && localStream.getVideoTracks().length > 0;
 }
-// If we have nothing to send for a kind of media, still ask to RECEIVE it —
-// otherwise the offer has no audio/video section and the other person's
-// video would never reach us. Only needed on the side that creates the offer.
 function addReceiveOnlyIfNoLocalTracks(conn, type) {
   const has = (kind) => localStream.getTracks().some(t => t.kind === kind);
   if (!has('audio')) conn.addTransceiver('audio', { direction: 'recvonly' });
@@ -2740,7 +2721,7 @@ async function startCall(type) {
   const callWire = wireCallConnectionState(pc, {
     onConnected: () => { if (pc === thisPc) $('call-status').innerText = 'Connected'; },
     onFailed: (reason) => {
-      if (pc !== thisPc) return; // a newer call has already replaced this one
+      if (pc !== thisPc) return;
       showToast(reason);
       endCall(true);
     }
@@ -2762,11 +2743,6 @@ async function startCall(type) {
     fromPhoto: myProfile.photoURL || defaultAvatar(myProfile.username), type, status: 'ringing'
   });
 
-  // The callee's candidates can start arriving well before we've applied
-  // their answer (setRemoteDescription happens below, only once they
-  // accept) — this gap gets a lot wider across networks, since STUN/TURN
-  // candidates take real time to gather. Queue anything that shows up
-  // early instead of dropping it.
   let pendingCalleeCandidates = [];
 
   callDocUnsub = onValue(ref(db, 'calls/' + callId), async (snap) => {
@@ -2872,8 +2848,6 @@ $('toggle-cam-btn').onclick = () => {
   $('toggle-cam-btn').classList.toggle('active-off', !camOn);
 };
 
-// Call audio (output) volume — applies to the remote party's voice/video
-// in a 1:1 call, and to every remote tile in a group call.
 let callVolume = 1;
 function applyCallVolume() {
   const remote = $('remote-video');
@@ -2902,8 +2876,6 @@ $('end-call-btn').onclick = () => groupCallId ? endGroupCall() : endCall(true);
 async function endCall(notify) {
   if (currentCallId && notify) {
     await update(ref(db, 'calls/' + currentCallId), { status: 'ended' }).catch(()=>{});
-    // If the caller hangs up (or the call fails) before the other person answers,
-    // clear their ringing notification so it doesn't ring forever.
     if (currentCallRole === 'caller' && currentCallPeerUid) {
       const ringing = ref(db, 'incomingCall/' + currentCallPeerUid);
       get(ringing).then(s => { if (s.exists() && s.val().callId === currentCallId) remove(ringing); }).catch(() => {});
@@ -2919,14 +2891,6 @@ async function endCall(notify) {
   currentCallPeerUid = null;
 }
 
-/* =========================================================
-   GROUP CALLING (WebRTC mesh — everyone connects to everyone)
-   NOTE: this is more experimental than 1:1 calls. TURN relay
-   (see rtcConfig above) helps each pair connect across networks,
-   but a full mesh still means one upload stream per participant,
-   so 3-4 people is a reasonable ceiling for a browser-only mesh
-   like this.
-   ========================================================= */
 function pairKeyFor(a, b) { return [a, b].sort().join('_'); }
 
 async function startGroupCall(type) {
@@ -2939,12 +2903,6 @@ async function startGroupCall(type) {
   groupCallId = groupId;
   groupCallType = type;
 
-  // Each fresh call gets its own signaling session id, and anyone joining
-  // an already-running call reuses it. Without this, the offer/answer/ICE
-  // candidates from a previous call in this group would still be sitting
-  // in the database under the same path and get picked up immediately by
-  // the next call — which is why a group call would connect the first
-  // time but then break on every call after that.
   const existingParticipants = await get(ref(db, `groupCalls/${groupId}/participants`));
   if (existingParticipants.exists() && Object.keys(existingParticipants.val()).length > 0) {
     const sessionSnap = await get(ref(db, `groupCalls/${groupId}/sessionId`));
@@ -2974,7 +2932,7 @@ async function startGroupCall(type) {
 }
 
 async function connectToGroupPeer(groupId, otherUid) {
-  if (groupPeerConnections[otherUid]) return; // already connected
+  if (groupPeerConnections[otherUid]) return;
   const [a, b] = [currentUser.uid, otherUid].sort();
   const amA = currentUser.uid === a;
   const pairKey = `${a}_${b}`;
@@ -2989,17 +2947,13 @@ async function connectToGroupPeer(groupId, otherUid) {
   conn.onicecandidate = (e) => { if (e.candidate) push(ref(db, myCandPath), e.candidate.toJSON()).catch(err => console.error('Failed to send ICE candidate', err)); };
   const peerWire = wireCallConnectionState(conn, {
     onFailed: (reason) => {
-      if (groupPeerConnections[otherUid] !== conn) return; // already torn down/replaced
+      if (groupPeerConnections[otherUid] !== conn) return;
       showToast(reason);
       teardownGroupPeer(otherUid);
     }
   });
   peerWire.armTimeout();
 
-  // Candidates for this pair can arrive before we've applied the other
-  // side's offer/answer — on both the offerer and answerer side here —
-  // and that gap widens a lot across networks since STUN/TURN candidates
-  // take real time to gather. Queue anything that shows up early.
   let pendingPeerCandidates = [];
   function flushPendingPeerCandidates() {
     pendingPeerCandidates.forEach(c => conn.addIceCandidate(c).catch(err => console.error('Failed to add queued ICE candidate', err)));
@@ -3103,9 +3057,6 @@ async function endGroupCall() {
   const groupId = groupCallId;
   await remove(ref(db, `groupCalls/${groupId}/participants/${currentUser.uid}`)).catch(() => {});
 
-  // If that was the last participant, wipe the signaling data so the next
-  // call starts from a clean slate (belt-and-braces alongside the new
-  // session id generated in startGroupCall).
   try {
     const remaining = await get(ref(db, `groupCalls/${groupId}/participants`));
     if (!remaining.exists() || Object.keys(remaining.val()).length === 0) {
@@ -3126,9 +3077,6 @@ async function endGroupCall() {
   groupCallSessionId = null;
 }
 
-/* =========================================================
-   MODERATOR TOOLS (admin panel)
-   ========================================================= */
 $('admin-btn').onclick = () => {
   $('admin-modal').classList.add('show');
   $('admin-search-input').value = '';
@@ -3162,7 +3110,7 @@ async function loadAdminUserList() {
     const row = document.createElement('div');
     row.className = 'admin-user-row';
     row.style.cssText = 'display:flex; flex-wrap:wrap; gap:6px; align-items:center; border:1px solid var(--border); padding:8px; border-radius:10px; margin-bottom:8px;';
-    
+
     row.innerHTML = `
       <img class="avatar avatar-sm" src="${esc(u.photoURL || defaultAvatar(u.username))}">
       <div style="flex:1; min-width:140px;">
@@ -3175,14 +3123,13 @@ async function loadAdminUserList() {
         <div style="font-size:11.5px; color:var(--text-dim);">${esc(u.email || '')}</div>
       </div>
       <div style="display:flex; gap:4px; flex-wrap:wrap;">
-        <button data-action="reset-pfp" style="background:var(--accent-2); border:none; border-radius:6px; padding:4px 8px; font-size:11px; color:#fff; cursor:pointer;">Reset Avatar</button>
-        <button data-action="reset-username" style="background:var(--accent); border:none; border-radius:6px; padding:4px 8px; font-size:11px; color:#fff; cursor:pointer;">Reset Name</button>
-        <button data-action="mute" style="background:${u.muted ? 'var(--success)' : 'var(--accent-2)'}; border:none; border-radius:6px; padding:4px 8px; font-size:11px; color:#fff; cursor:pointer;">${u.muted ? 'Unmute' : 'Mute'}</button>
-        <button data-action="ban" style="background:${u.banned ? 'var(--success)' : 'var(--danger)'}; border:none; border-radius:6px; padding:4px 8px; font-size:11px; color:#fff; cursor:pointer;">${u.banned ? 'Unban' : 'Ban'}</button>
-        <button data-action="wipe-chats" style="background:var(--danger); border:none; border-radius:6px; padding:4px 8px; font-size:11px; color:#fff; cursor:pointer;">Clear Chats</button>
+        <button data-action="reset-pfp" style="background:var(--accent-2); border:none; border-radius:6px; padding:4px 8px; font-size:11px; color:var(--on-accent); cursor:pointer;">Reset Avatar</button>
+        <button data-action="reset-username" style="background:var(--accent); border:none; border-radius:6px; padding:4px 8px; font-size:11px; color:var(--on-accent); cursor:pointer;">Reset Name</button>
+        <button data-action="mute" style="background:${u.muted ? 'var(--success)' : 'var(--accent-2)'}; border:none; border-radius:6px; padding:4px 8px; font-size:11px; color:var(--on-accent); cursor:pointer;">${u.muted ? 'Unmute' : 'Mute'}</button>
+        <button data-action="ban" style="background:${u.banned ? 'var(--success)' : 'var(--danger)'}; border:none; border-radius:6px; padding:4px 8px; font-size:11px; color:var(--on-accent); cursor:pointer;">${u.banned ? 'Unban' : 'Ban'}</button>
+        <button data-action="wipe-chats" style="background:var(--danger); border:none; border-radius:6px; padding:4px 8px; font-size:11px; color:var(--on-accent); cursor:pointer;">Clear Chats</button>
       </div>`;
 
-    // 1. Reset Avatar Feature
     row.querySelector('[data-action="reset-pfp"]').onclick = async () => {
       if (!confirm(`Reset profile picture for ${u.username} to default?`)) return;
       const defaultPfp = defaultAvatar(u.username);
@@ -3191,7 +3138,6 @@ async function loadAdminUserList() {
       loadAdminUserList();
     };
 
-    // 2. Force Pick New Username
     row.querySelector('[data-action="reset-username"]').onclick = async () => {
       if (!confirm(`Force ${u.username} to pick a new username on next log in?`)) return;
       await update(ref(db, 'users/' + uid), { forceUsernameReset: true });
@@ -3199,7 +3145,6 @@ async function loadAdminUserList() {
       loadAdminUserList();
     };
 
-    // 3. Mute/Unmute User Feature
     row.querySelector('[data-action="mute"]').onclick = async () => {
       const newMuteState = !u.muted;
       await update(ref(db, 'users/' + uid), { muted: newMuteState });
@@ -3207,14 +3152,12 @@ async function loadAdminUserList() {
       loadAdminUserList();
     };
 
-    // 4. Ban/Unban User
     row.querySelector('[data-action="ban"]').onclick = async () => {
       await update(ref(db, 'users/' + uid), { banned: !u.banned });
       showToast(`${u.username} has been ${!u.banned ? 'banned' : 'unbanned'}.`);
       loadAdminUserList();
     };
 
-    // 5. Purge/Clear User's Active Chat History
     row.querySelector('[data-action="wipe-chats"]').onclick = async () => {
       if (!confirm(`Are you sure you want to delete all active DM chat references for ${u.username}?`)) return;
       await remove(ref(db, 'userChats/' + uid));
