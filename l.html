@@ -2646,6 +2646,7 @@ let callDocUnsub = null;
 
 // Group (mesh) calling
 let groupCallId = null;
+let groupCallType = 'audio';
 let groupCallSessionId = null; // fresh id per call session, see startGroupCall
 let groupPeerConnections = {}; // otherUid -> RTCPeerConnection
 let groupUnsubFns = [];        // list of unsubscribe fns to clean up on end
@@ -2685,6 +2686,40 @@ function listenIncomingCalls() {
 $('voice-call-btn').onclick = () => openChatKind === 'group' ? startGroupCall('audio') : startCall('audio');
 $('video-call-btn').onclick = () => openChatKind === 'group' ? startGroupCall('video') : startCall('video');
 
+// Gets the microphone/camera for a call, but never blocks you from joining:
+// no camera (or it's denied) -> audio only; no mic either -> listen-only.
+// You can still SEE other people's video in those cases (see addReceiveOnlyIfNoLocalTracks).
+async function acquireCallMedia(type) {
+  const wantVideo = type === 'video';
+  try {
+    return await navigator.mediaDevices.getUserMedia({ audio: true, video: wantVideo });
+  } catch (e) {
+    console.warn('getUserMedia failed:', e);
+  }
+  if (wantVideo) {
+    try {
+      const audioOnly = await navigator.mediaDevices.getUserMedia({ audio: true });
+      showToast('Camera unavailable — joining without your video.');
+      return audioOnly;
+    } catch (e) {
+      console.warn('Audio-only getUserMedia failed:', e);
+    }
+  }
+  showToast('No camera/microphone access — joining listen-only.');
+  return new MediaStream();
+}
+function localHasVideo() {
+  return !!localStream && localStream.getVideoTracks().length > 0;
+}
+// If we have nothing to send for a kind of media, still ask to RECEIVE it —
+// otherwise the offer has no audio/video section and the other person's
+// video would never reach us. Only needed on the side that creates the offer.
+function addReceiveOnlyIfNoLocalTracks(conn, type) {
+  const has = (kind) => localStream.getTracks().some(t => t.kind === kind);
+  if (!has('audio')) conn.addTransceiver('audio', { direction: 'recvonly' });
+  if (type === 'video' && !has('video')) conn.addTransceiver('video', { direction: 'recvonly' });
+}
+
 async function startCall(type) {
   if (!openChatUid) return;
   if (!(await prepareIce())) return;
@@ -2693,12 +2728,7 @@ async function startCall(type) {
   currentCallId = callId;
   currentCallRole = 'caller';
 
-  try {
-    localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: type === 'video' });
-  } catch (e) {
-    showToast('Could not access camera/microphone.');
-    return;
-  }
+  localStream = await acquireCallMedia(type);
 
   openCallUI(friendsCache[openChatUid], type, 'Calling...');
 
@@ -2719,6 +2749,7 @@ async function startCall(type) {
   const callerCandidatesRef = ref(db, `calls/${callId}/callerCandidates`);
   pc.onicecandidate = (e) => { if (e.candidate) push(callerCandidatesRef, e.candidate.toJSON()).catch(err => console.error('Failed to send ICE candidate', err)); };
 
+  addReceiveOnlyIfNoLocalTracks(pc, type);
   const offer = await pc.createOffer();
   await pc.setLocalDescription(offer);
 
@@ -2769,12 +2800,7 @@ async function acceptCall(data) {
   currentCallId = data.callId;
   currentCallRole = 'callee';
 
-  try {
-    localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: data.type === 'video' });
-  } catch (e) {
-    showToast('Could not access camera/microphone.');
-    return;
-  }
+  localStream = await acquireCallMedia(data.type);
 
   const caller = friendsCache[data.fromUid] || { username: data.fromUsername, photoURL: data.fromPhoto };
   openCallUI(caller, data.type, 'Connecting...');
@@ -2826,13 +2852,13 @@ function openCallUI(peer, type, status) {
   $('call-peer-name').innerText = peer.username;
   $('call-status').innerText = status;
   $('local-video').srcObject = localStream;
-  $('local-video').style.display = type === 'video' ? 'block' : 'none';
+  $('local-video').style.display = localHasVideo() ? 'block' : 'none';
   $('remote-video').style.display = type === 'video' ? 'block' : 'none';
   resetCallVolumeUI();
-  micOn = true; camOn = type === 'video';
+  micOn = true; camOn = localHasVideo();
   $('toggle-mic-btn').classList.remove('active-off');
   $('toggle-cam-btn').classList.remove('active-off');
-  $('toggle-cam-btn').style.display = type === 'video' ? 'flex' : 'none';
+  $('toggle-cam-btn').style.display = localHasVideo() ? 'flex' : 'none';
 }
 
 $('toggle-mic-btn').onclick = () => {
@@ -2908,14 +2934,10 @@ async function startGroupCall(type) {
   if (!(await prepareIce())) return;
   const groupId = openChatId;
 
-  try {
-    localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: type === 'video' });
-  } catch (e) {
-    showToast('Could not access camera/microphone.');
-    return;
-  }
+  localStream = await acquireCallMedia(type);
 
   groupCallId = groupId;
+  groupCallType = type;
 
   // Each fresh call gets its own signaling session id, and anyone joining
   // an already-running call reuses it. Without this, the offer/answer/ICE
@@ -2993,6 +3015,7 @@ async function connectToGroupPeer(groupId, otherUid) {
   });
 
   if (amA) {
+    addReceiveOnlyIfNoLocalTracks(conn, groupCallType);
     const offer = await conn.createOffer();
     await conn.setLocalDescription(offer);
     await set(ref(db, `${peerPath}/offer`), { type: offer.type, sdp: offer.sdp });
@@ -3029,10 +3052,10 @@ function openGroupCallUI(type) {
   $('call-videos-grid').style.display = 'grid';
   $('call-videos-grid').innerHTML = '';
   resetCallVolumeUI();
-  micOn = true; camOn = type === 'video';
+  micOn = true; camOn = localHasVideo();
   $('toggle-mic-btn').classList.remove('active-off');
   $('toggle-cam-btn').classList.remove('active-off');
-  $('toggle-cam-btn').style.display = type === 'video' ? 'flex' : 'none';
+  $('toggle-cam-btn').style.display = localHasVideo() ? 'flex' : 'none';
 }
 
 function addLocalTileToGrid(type) {
@@ -3042,7 +3065,7 @@ function addLocalTileToGrid(type) {
   const video = document.createElement('video');
   video.autoplay = true; video.muted = true; video.playsInline = true;
   video.srcObject = localStream;
-  video.style.display = type === 'video' ? 'block' : 'none';
+  video.style.display = localHasVideo() ? 'block' : 'none';
   tile.appendChild(video);
   const label = document.createElement('div');
   label.className = 'tile-label';
