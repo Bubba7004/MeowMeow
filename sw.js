@@ -21,3 +21,18 @@ self.addEventListener('fetch', (event) => {
       .catch(() => caches.match(event.request))
   );
 });
+
+// Added: Listen for push notification events
+self.addEventListener('push', (event) => {
+  const data = event.data ? event.data.json() : { title: 'MeowMeow', body: 'New notification received!' };
+
+  const options = {
+    body: data.body,
+    icon: 'icon-192.png',
+    badge: 'icon-192.png'
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(data.title, options)
+  );
+});
