@@ -824,6 +824,7 @@ import {
   onChildChanged, onChildRemoved, serverTimestamp, query, orderByChild, equalTo, onDisconnect, off,
   orderByKey, limitToLast, startAt, startAfter, endBefore
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { getMessaging, getToken, deleteToken } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAbFxG2rG2zuN_nOw8YyX3dUrLoTjeIfRc",
@@ -839,6 +840,58 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
+
+/* ---------- Background push notifications (Firebase Cloud Messaging) ----------
+   Paste your Web Push key pair (VAPID public key) here:
+   Firebase console -> Project settings -> Cloud Messaging -> Web Push certificates. */
+const FCM_VAPID_KEY = 'PASTE_YOUR_VAPID_PUBLIC_KEY_HERE';
+
+async function setupPush() {
+  try {
+    if (!currentUser) return;
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+    if (!FCM_VAPID_KEY || FCM_VAPID_KEY.startsWith('PASTE_')) {
+      console.warn('Push disabled: set FCM_VAPID_KEY in l.html.');
+      return;
+    }
+    const reg = await navigator.serviceWorker.ready;
+    const token = await getToken(getMessaging(app), { vapidKey: FCM_VAPID_KEY, serviceWorkerRegistration: reg });
+    if (!token) return;
+    await set(ref(db, `fcmTokens/${currentUser.uid}/${token}`), { updatedAt: Date.now() });
+  } catch (e) {
+    console.warn('Push setup failed:', e);
+  }
+}
+
+async function removePushToken() {
+  try {
+    if (!currentUser || !('serviceWorker' in navigator) || !('PushManager' in window)) return;
+    const messaging = getMessaging(app);
+    const reg = await navigator.serviceWorker.ready;
+    const token = await getToken(messaging, { vapidKey: FCM_VAPID_KEY, serviceWorkerRegistration: reg });
+    if (token) await remove(ref(db, `fcmTokens/${currentUser.uid}/${token}`));
+    await deleteToken(messaging);
+  } catch (e) { /* best effort */ }
+}
+
+/* ---------- Ask the Cloudflare Worker to send the push ----------
+   Paste your Worker URL here after you deploy it (looks like https://something.workers.dev). */
+const PUSH_WORKER_URL = 'https://meowmeow-push.bubbahedgehog1.workers.dev/';
+
+async function pingPush(payload) {
+  try {
+    if (!PUSH_WORKER_URL || PUSH_WORKER_URL.startsWith('PASTE_') || !currentUser) return;
+    const idToken = await currentUser.getIdToken();
+    // text/plain keeps this a "simple" request, so the browser skips the CORS preflight.
+    fetch(PUSH_WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ idToken, ...payload }),
+      keepalive: true
+    }).catch(() => {});
+  } catch (e) { /* best effort */ }
+}
 
 const CLOUDINARY_CLOUD_NAME = 'xayz2dka';
 const CLOUDINARY_UPLOAD_PRESET = 'preset';
@@ -1022,7 +1075,8 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden) clea
 function notifyUser(title, body, icon) {
   if (!('Notification' in window) || Notification.permission !== 'granted') return;
   try {
-    const n = new Notification(title, { body, icon: icon || undefined });
+    // Same tag as the background push, so one message never shows two notifications.
+    const n = new Notification(title, { body, icon: icon || undefined, tag: title });
     n.onclick = () => { window.focus(); n.close(); };
   } catch (e) { }
 }
@@ -1046,6 +1100,7 @@ $('notif-btn').onclick = async () => {
   if (!('Notification' in window)) { showToast('Notifications are not supported in this browser.'); return; }
   const perm = await Notification.requestPermission();
   showToast(perm === 'granted' ? 'Notifications enabled!' : 'Notifications are blocked for this site.');
+  if (perm === 'granted') setupPush();
 };
 
 $('auth-toggle-btn').onclick = () => {
@@ -1113,6 +1168,7 @@ $('auth-submit-btn').onclick = async () => {
 
 $('logout-btn').onclick = async () => {
   if (currentUser) {
+    await removePushToken();
     await update(ref(db, 'users/' + currentUser.uid), { online: false, lastSeen: serverTimestamp() }).catch(() => {});
   }
   signOut(auth);
@@ -1167,7 +1223,9 @@ async function enterApp(user, profile) {
   loadIceServers();
 
   if ('Notification' in window && Notification.permission === 'default') {
-    Notification.requestPermission().catch(() => {});
+    Notification.requestPermission().then((p) => { if (p === 'granted') setupPush(); }).catch(() => {});
+  } else {
+    setupPush();
   }
 }
 
@@ -2544,10 +2602,12 @@ async function sendChatMessage(type, content) {
   if (!openChatId) return;
   if (openChatKind === 'group') return sendGroupMessage(type, content);
 
+  const pushChatId = openChatId;
   const msgsRef = ref(db, 'chats/' + openChatId + '/messages');
   const payload = { senderUid: currentUser.uid, type, content, timestamp: Date.now() };
   if (replyingTo) { payload.replyTo = replyingTo; clearComposerMode(); }
   await push(msgsRef, payload);
+  pingPush({ kind: 'dm', chatId: pushChatId });
 
   const preview = type === 'text' ? content : (type === 'image' ? '📷 Photo' : type === 'video' ? '🎬 Video' : '🎞 GIF');
   const now = Date.now();
@@ -2566,6 +2626,7 @@ async function sendGroupMessage(type, content) {
   const payload = { senderUid: currentUser.uid, type, content, timestamp: Date.now() };
   if (replyingTo) { payload.replyTo = replyingTo; clearComposerMode(); }
   await push(msgsRef, payload);
+  pingPush({ kind: 'group', groupId });
 
   const preview = type === 'text' ? content : (type === 'image' ? '📷 Photo' : type === 'video' ? '🎬 Video' : '🎞 GIF');
   const now = Date.now();
@@ -3166,6 +3227,7 @@ async function startCall(type) {
     callId, fromUid: currentUser.uid, fromUsername: myProfile.username,
     fromPhoto: myProfile.photoURL || defaultAvatar(myProfile.username), type, status: 'ringing'
   });
+  pingPush({ kind: 'call', toUid: currentCallPeerUid });
 
   let pendingCalleeCandidates = [];
 
