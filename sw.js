@@ -22,7 +22,7 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// Push notification listener with vibration and safe fallbacks
+// Push notification listener with sound and vibration flags
 self.addEventListener('push', (event) => {
   let data = { title: 'Minty Messenger', body: 'New message received!' };
 
@@ -38,8 +38,9 @@ self.addEventListener('push', (event) => {
     body: data.body || 'New message received!',
     icon: 'icon-192.png',
     badge: 'icon-192.png',
-    // Vibrate pattern: vibrate 200ms, pause 100ms, vibrate 200ms
-    vibrate: [200, 100, 200] 
+    vibrate: [200, 100, 200],
+    // Hint to Android to trigger high importance alerts (sound/vibration)
+    requireInteraction: true
   };
 
   event.waitUntil(
