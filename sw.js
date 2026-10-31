@@ -22,17 +22,25 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// Added: Listen for push notification events
+// Push notification listener with safe fallbacks
 self.addEventListener('push', (event) => {
-  const data = event.data ? event.data.json() : { title: 'MeowMeow', body: 'New notification received!' };
+  let data = { title: 'MeowMeow', body: 'New message received!' };
+
+  try {
+    if (event.data) {
+      data = event.data.json();
+    }
+  } catch (e) {
+    data.body = event.data ? event.data.text() : 'New notification received!';
+  }
 
   const options = {
-    body: data.body,
+    body: data.body || 'New message received!',
     icon: 'icon-192.png',
     badge: 'icon-192.png'
   };
 
   event.waitUntil(
-    self.registration.showNotification(data.title, options)
+    self.registration.showNotification(data.title || 'MeowMeow', options)
   );
 });
