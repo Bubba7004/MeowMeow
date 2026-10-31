@@ -22,9 +22,9 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// Push notification listener with safe fallbacks
+// Push notification listener with vibration and safe fallbacks
 self.addEventListener('push', (event) => {
-  let data = { title: 'MeowMeow', body: 'New message received!' };
+  let data = { title: 'Minty Messenger', body: 'New message received!' };
 
   try {
     if (event.data) {
@@ -37,10 +37,12 @@ self.addEventListener('push', (event) => {
   const options = {
     body: data.body || 'New message received!',
     icon: 'icon-192.png',
-    badge: 'icon-192.png'
+    badge: 'icon-192.png',
+    // Vibrate pattern: vibrate 200ms, pause 100ms, vibrate 200ms
+    vibrate: [200, 100, 200] 
   };
 
   event.waitUntil(
-    self.registration.showNotification(data.title || 'MeowMeow', options)
+    self.registration.showNotification(data.title || 'Minty Messenger', options)
   );
 });
