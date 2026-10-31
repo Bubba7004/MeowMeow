@@ -846,20 +846,31 @@ const db = getDatabase(app);
    Firebase console -> Project settings -> Cloud Messaging -> Web Push certificates. */
 const FCM_VAPID_KEY = 'BI6-4W3E2RWeXy5y2JtsmBzd_JMtW5D-KwsIBzLiuIxpOJqh5KIfC1x26mG7Bh4RkC7W6R0IJRWdKYEksLU6Y_U';
 
+// While you are testing, this shows a small message on screen about how push setup went
+// (handy on a phone, where you can't see the console). Set it to false once push works.
+const PUSH_DEBUG_TOASTS = true;
+function pushDebug(msg) {
+  console.log('[push]', msg);
+  if (PUSH_DEBUG_TOASTS) showToast('Push: ' + msg);
+}
+
 async function setupPush() {
   try {
     if (!currentUser) return;
-    if (!('Notification' in window) || Notification.permission !== 'granted') return;
-    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+    if (!('Notification' in window)) { pushDebug('this browser has no notification support.'); return; }
+    if (Notification.permission !== 'granted') { pushDebug('notifications are not allowed yet (tap the 🔔 button).'); return; }
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) { pushDebug('this browser has no push support.'); return; }
     if (!FCM_VAPID_KEY || FCM_VAPID_KEY.startsWith('PASTE_')) {
-      console.warn('Push disabled: set FCM_VAPID_KEY in l.html.');
+      pushDebug('VAPID key is not set in l.html.');
       return;
     }
     const reg = await navigator.serviceWorker.ready;
     const token = await getToken(getMessaging(app), { vapidKey: FCM_VAPID_KEY, serviceWorkerRegistration: reg });
-    if (!token) return;
+    if (!token) { pushDebug('no token was returned.'); return; }
     await set(ref(db, `fcmTokens/${currentUser.uid}/${token}`), { updatedAt: Date.now() });
+    pushDebug('this device is registered.');
   } catch (e) {
+    pushDebug('setup failed: ' + ((e && e.message) || e));
     console.warn('Push setup failed:', e);
   }
 }
