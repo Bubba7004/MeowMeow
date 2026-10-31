@@ -848,7 +848,7 @@ const FCM_VAPID_KEY = 'BI6-4W3E2RWeXy5y2JtsmBzd_JMtW5D-KwsIBzLiuIxpOJqh5KIfC1x26
 
 // While you are testing, this shows a small message on screen about how push setup went
 // (handy on a phone, where you can't see the console). Set it to false once push works.
-const PUSH_DEBUG_TOASTS = true;
+const PUSH_DEBUG_TOASTS = false;
 function pushDebug(msg) {
   console.log('[push]', msg);
   if (PUSH_DEBUG_TOASTS) showToast('Push: ' + msg);
