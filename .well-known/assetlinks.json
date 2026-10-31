@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "io.github.bubba7004.twa",
+        "sha256_cert_fingerprints": ["E6:2A:24:96:DC:A5:2D:6E:E5:05:FB:05:61:69:2E:C1:1D:29:68:C9:54:22:B3:7E:47:32:96:D0:79:CD:92:C3"]
+      }
+    }]
