@@ -407,22 +407,51 @@ $('#q').oninput=e=>{state.q=e.target.value;render(true)};
 $('#sort').onchange=e=>{state.sort=e.target.value;render(true)};
 $('#rand').onclick=()=>{const l=VIS.length?VIS:ALL;if(l.length)openGame(l[Math.floor(Math.random()*l.length)])};
 
+/* give a fetched game page the right base URL: keep the game's own <base href> (made absolute), otherwise use the file's folder */
+function withBase(html,fileUrl){
+  const dir=fileUrl.replace(/[?#].*$/,'').replace(/[^\/]*$/,'');
+  let found=false;
+  html=html.replace(/<base\b([^>]*?)>/gi,(m,attrs)=>{
+    const h=attrs.match(/\bhref\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i);
+    if(!h)return m;
+    const raw=(h[1]??h[2]??h[3]??'').trim();let abs;
+    try{abs=new URL(raw||'.',dir).href}catch(e){return m}
+    found=true;
+    return m.replace(h[0],'href="'+abs.replace(/"/g,'&quot;')+'"');
+  });
+  if(found)return html;
+  const tag='<base href="'+dir+'">';
+  return /<head[^>]*>/i.test(html)?html.replace(/<head[^>]*>/i,m=>m+tag):tag+html;
+}
 /* ---------- viewer ---------- */
 let cur=null,curBlob=null;
+/* the URLs to try for a game: as listed, plus fixes for odd names like "615.html-a" */
+function candidates(g){
+  const out=[];
+  [g.url,...g.alts].forEach(u=>{
+    [u,u.replace(/\.html-(\w+)$/i,'-$1.html'),u.replace(/\.html-\w+$/i,'.html')].forEach(v=>{if(!out.includes(v))out.push(v)});
+  });
+  return out;
+}
 async function openGame(g){
-  cur=g;curBlob=null;$('#vname').textContent=g.name;$('#viewer').classList.add('open');$('#vload').style.display='flex';document.body.style.overflow='hidden';
+  cur=g;curBlob=null;$('#vname').textContent=g.name;$('#viewer').classList.add('open');document.body.style.overflow='hidden';
+  const vl=$('#vload');vl.textContent='Loading…';vl.style.display='flex';
   const f=$('#frame');f.removeAttribute('srcdoc');f.src='about:blank';
-  const urls=[g.url,...g.alts];
+  const urls=candidates(g);let external=false;
   for(const u of urls){
-    if(/\.html?($|[?#])/i.test(u)){
-      try{
-        const r=await fetchText(u,25000);let h=r.text;const base=r.url.replace(/[^\/]*$/,'');
-        h=/<head[^>]*>/i.test(h)?h.replace(/<head[^>]*>/i,m=>m+'<base href="'+base+'">'):'<base href="'+base+'">'+h;
-        curBlob=URL.createObjectURL(new Blob([h],{type:'text/html'}));f.srcdoc=h;f.onload=()=>$('#vload').style.display='none';return;
-      }catch(e){}
-    }
+    const ours=/jsdelivr\.net|githack|githubusercontent/i.test(u)||/\.html?($|[?#])/i.test(u);
+    if(!ours){external=true;continue}
+    try{
+      const r=await fetchText(u,25000);
+      if(!/<(html|head|body|script|!doctype|canvas|div)/i.test(r.text.slice(0,5000)))continue;   // not a web page
+      const h=withBase(r.text,r.url);
+      if(cur!==g)return;
+      curBlob=URL.createObjectURL(new Blob([h],{type:'text/html'}));f.srcdoc=h;f.onload=()=>{vl.style.display='none'};return;
+    }catch(e){}
   }
-  f.onload=()=>$('#vload').style.display='none';f.src=g.url;
+  if(cur!==g)return;
+  if(external){f.onload=()=>{vl.style.display='none'};f.src=g.url;return}
+  vl.textContent='Couldn’t load this game — its file may be missing from the source. Try 🎲 Random or another game.';
 }
 function closeGame(){const f=$('#frame');f.removeAttribute('srcdoc');f.src='about:blank';$('#viewer').classList.remove('open');document.body.style.overflow='';if(curBlob)URL.revokeObjectURL(curBlob);curBlob=null;cur=null}
 $('#vclose').onclick=closeGame;
